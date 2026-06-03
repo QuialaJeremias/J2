@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutos Públicos - UniDirecionamento</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: linear-gradient(135deg, #0a4da2, #051326); 
+            background-attachment: fixed;
+            min-height: 100vh; 
+            color: white; 
+            padding: 20px;
+        }
+
+        header { 
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(5, 19, 38, 0.7);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+            border-radius: 0 0 20px 20px;
+        }
+
+        header h1 { color: #f5b932; font-size: 2rem; }
+        header p { color: #cbd5e0; margin-top: 5px; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding-bottom: 80px; }
+        
+          .btn-voltar {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 10000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: #06126e00;
+            border: 2px solid #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #f5b932; 
+            color: #000000; 
+            transform: scale(1.05); 
+            border: 2px solid #ffffff00;
+        }
+
+        .institutos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+
+        .inst-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        .inst-card:hover { transform: translateY(-8px); border-color: #f5b932; background: rgba(255, 255, 255, 0.12); }
+        .inst-img { width: 100%; height: 180px; object-fit: cover; background: #1a202c; }
+        .inst-content { padding: 20px; }
+        .inst-name { font-weight: bold; color: #f5b932; font-size: 1.1rem; display: block; margin-bottom: 5px; }
+        .inst-mun { font-size: 0.85rem; color: #a0aec0; }
+
+        /* Estilos do Modal */
+        .modal { display:none; position:fixed; z-index:20000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(10px); justify-content:center; align-items:center; padding: 20px; }
+       .modal-content {
+    background: #1a202c;
+    padding: 30px;
+    border-radius: 25px;
+    width: 100%;
+    max-width: 700px;
+    border: 1px solid #f5b932;
+    position: relative;
+    
+    /* --- NOVAS REGRAS PARA CORREÇÃO --- */
+    max-height: 85vh; /* O modal nunca terá mais que 85% da altura da tela */
+    overflow-y: auto; /* Adiciona scroll se o conteúdo for maior que o modal */
+}
+
+/* Deixar a barra de rolagem mais bonita (estilo moderno) */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+.modal-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+    background: #f5b932;
+    border-radius: 10px;
+}
+ .close-modal { position: absolute; right: 20px; top: 15px; font-size: 30px; cursor: pointer; color: #f5b932; }
+        
+        .info-list { margin-top: 20px; list-style: none; }
+      .info-list li {
+    padding: 10px 15px; /* Diminuído para caberem mais cursos na tela */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+        .info-list li:hover { background: rgba(255,255,255,0.1); border-radius: 8px; }
+        .btn-site { display: block; width: 100%; background: #f5b932; color: #051326; text-align: center; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 25px; transition: 0.3s; }
+        .btn-site:hover { background: white; }
+        /* Torna a lista de cursos branca */
+.info-list li { 
+    padding: 12px; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    color: white; /* Cor do texto principal */
+}
+
+.info-list li span {
+    color: #ffffff !important; /* Força o nome do curso a ser branco */
+    font-weight: 500;
+}
+
+/* Ajuste opcional para o "Disponível" se quiser que destaque mais */
+.info-list li small {
+    color: #4ade80; /* Mantém o verde mas pode ajustar o brilho */
+    font-weight: bold;
+}
+
+        /* Loading */
+        #loader { text-align: center; padding: 50px; font-weight: bold; color: #f5b932; }
+
+        /* Modal de Detalhes do Curso */
+.curso-detalhe-box { 
+    background: rgba(245, 185, 50, 0.1); 
+    border-left: 4px solid #f5b932; 
+    padding: 15px; 
+    margin-top: 15px; 
+    border-radius: 8px; 
+    text-align: left;
+}
+
+.curso-detalhe-box p strong {
+    color: #f5b932; /* Cor dourada para combinar com o tema */
+    text-transform: uppercase; /* Opcional: deixa em letras maiúsculas para dar mais destaque */
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+/* Altera a cor dos dados (o conteúdo que vem depois) */
+#c-duracao, #c-desc {
+    color: #ffffff; /* Branco puro para máxima leitura */
+}
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <a href="javascript:history.back()" class="btn-voltar">⬅ Voltar ao Perfil</a>
+
+    <header>
+        <h1>Rede de Institutos Públicos</h1>
+        <p>Dados sincronizados em tempo real com o Ministério</p>
+    </header>
+
+    <div class="container">
+        <div id="loader">⏳ Sincronizando com a nuvem...</div>
+        <div class="institutos-grid" id="grid"></div>
+    </div>
+
+    <div id="instModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="fecharModal()">&times;</span>
+            <h2 id="m-nome" style="color: #f5b932; margin-bottom: 5px;">Nome do Instituto</h2>
+            <p id="m-loc" style="color: #cbd5e0; margin-bottom: 20px;">📍 Município</p>
+            
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
+                <h4 style="color: #f5b932; border-bottom: 1px solid #fffdfd; padding-bottom: 10px;">Cursos Disponíveis:</h4>
+                <ul id="m-cursos" class="info-list"></ul>
+            </div>
+
+            <a href="#" id="m-site" target="_blank" class="btn-site">Ver site oficial</a>
+        </div>
+    </div>
+<div id="cursoModal" class="modal" style="z-index: 30000;">
+    <div class="modal-content" style="max-width: 450px; border-color: #ffffff;">
+        <span class="close-modal" onclick="document.getElementById('cursoModal').style.display='none'">&times;</span>
+        <h2 id="c-nome" style="color: #f5b932; margin-bottom: 15px;">Nome do Curso</h2>
+        
+        <div class="curso-detalhe-box">
+            <p><strong>Duração:</strong> <span id="c-duracao" >4 Anos</span></p>
+            <p style="margin-top: 10px;"><strong>Descrição:</strong></p>
+            <p id="c-desc" style="font-size: 0.9rem; color: #eee; line-height: 1.5;"></p>
+        </div>
+        
+        <button class="btn-site" style="background: #fff; margin-top: 20px; color: #000;" onclick="document.getElementById('cursoModal').style.display='none'">Fechar</button>
+    </div>
+</div>
+    <script>
+       // 1. Configuração do Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+    authDomain: "j-direcionamento.firebaseapp.com",
+    projectId: "j-direcionamento",
+    storageBucket: "j-direcionamento.appspot.com",
+    messagingSenderId: "288532637574",
+    appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const grid = document.getElementById('grid');
+const modal = document.getElementById('instModal');
+const loader = document.getElementById('loader');
+const userMun = (localStorage.getItem('municipio') || "").toLowerCase().trim();
+
+let dadosInstitutos = [];
+
+// 2. Escutar mudanças na nuvem em tempo real
+function carregarInstitutosNuvem() {
+    db.collection("Institutos").onSnapshot((querySnapshot) => {
+        dadosInstitutos = [];
+        grid.innerHTML = "";
+        if(loader) loader.style.display = "none";
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            data.id = doc.id;
+            dadosInstitutos.push(data);
+        });
+
+        // Ordenar por município do usuário
+        if (userMun !== "") {
+            dadosInstitutos.sort((a, b) => {
+                const aMatch = a.mun.toLowerCase().includes(userMun);
+                const bMatch = b.mun.toLowerCase().includes(userMun);
+                return (aMatch === bMatch) ? 0 : aMatch ? -1 : 1;
+            });
+        }
+
+        renderizarGrid(dadosInstitutos);
+    });
+}
+
+function renderizarGrid(lista) {
+    if (lista.length === 0) {
+        grid.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Nenhum instituto encontrado.</p>";
+        return;
+    }
+
+    lista.forEach((inst, index) => {
+        const isLocal = userMun !== "" && inst.mun.toLowerCase().includes(userMun);
+        
+        const card = document.createElement('div');
+        card.className = 'inst-card';
+        card.onclick = () => abrirModal(index);
+        
+        card.innerHTML = `
+            <img src="${inst.img || 'https://via.placeholder.com/400x200/0a4da2/ffffff?text='+inst.nome}" class="inst-img" onerror="this.src='https://via.placeholder.com/400x200/0a4da2/ffffff?text=Instituto'">
+            <div class="inst-content">
+                <span class="inst-name">${inst.nome}</span>
+                <span class="inst-mun">📍 ${inst.mun}</span>
+                ${isLocal ? '<span style="font-size:0.7rem; color:#f5b932; font-weight:bold; display:block; margin-top:8px; background: rgba(245,185,50,0.1); padding: 5px; border-radius: 5px; width: fit-content;">Próximo de si</span>' : ''}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function abrirModal(index) {
+    const inst = dadosInstitutos[index];
+    
+    document.getElementById('m-nome').innerText = inst.nome;
+    document.getElementById('m-loc').innerText = "📍 Localização: " + inst.mun;
+    document.getElementById('m-site').href = inst.site && inst.site !== "#" ? inst.site : "javascript:alert('Inscrições brevemente disponíveis online.')";
+
+    const listaCursos = document.getElementById('m-cursos');
+    listaCursos.innerHTML = "";
+
+    let cursosArray = [];
+    if (Array.isArray(inst.cursos)) {
+        cursosArray = inst.cursos;
+    } else if (typeof inst.cursos === 'string') {
+        cursosArray = inst.cursos.split(',').map(c => c.trim());
+    }
+
+    if (cursosArray.length > 0 && cursosArray[0] !== "") {
+        cursosArray.forEach(curso => {
+            // Vincula o clique para abrir os detalhes do curso
+            listaCursos.innerHTML += `<li onclick="abrirDetalheCurso('${curso}')">
+                <span>${curso}</span> 
+                <small style="color: #f5b932;">Ver detalhes ➔</small>
+            </li>`;
+        });
+    } else {
+        listaCursos.innerHTML = "<li>Sem cursos listados no momento.</li>";
+    }
+    
+    modal.style.display = "flex";
+}
+
+// NOVA FUNÇÃO: Abre a descrição e duração do curso
+function abrirDetalheCurso(nome) {
+    document.getElementById('c-nome').innerText = nome;
+    
+    let desc = "Descrição detalhada em fase de atualização pelo Ministério da Educação. Este curso foca-se no desenvolvimento de competências técnicas específicas para o mercado de trabalho.";
+    let duracao = "4 Anos (Ensino Médio Técnico)";
+
+    // Mapeamento de descrições detalhadas ("Cheirinho" de cada curso)
+    // Focadas na diferenciação clara entre áreas similares
+    const descricoes = {
+        "informática": "Foco em Lógica e Software: Ao contrário de Multimédia, aqui o foco é em algoritmos, programação de sistemas e redes. Ideal para quem quer criar o motor das aplicações.",
+        "multimédia": "Foco em Criatividade Visual: Diferencia-se da Informática por focar na edição de vídeo, design gráfico e interfaces (UI/UX). É o curso para quem quer trabalhar a imagem.",
+        "gestão": "Foco em Estratégia e Liderança: Diferencia-se da Contabilidade por focar na tomada de decisão e gestão de equipas, enquanto a contabilidade foca na precisão dos registos.",
+        "análises clínicas": "Foco em Diagnóstico Laboratorial: Trabalho técnico de análise de amostras. Diferencia-se da Enfermagem por não ter o contacto direto e clínico com o paciente.",
+        "enfermagem": "Foco em Cuidado Direto: Assistência hospitalar e humana. Diferencia-se da Farmácia pelo contacto clínico constante com o paciente no leito.",
+        "farmácia": "Foco em Medicamentos: Estudo da composição, manipulação e distribuição de remédios. Diferencia-se de Análises Clínicas por focar no tratamento farmacológico.",
+        "fisioterapia": "Foco em Reabilitação Física: Recuperação de movimentos e funções motoras. Diferencia-se da Enfermagem pelo foco específico na mecânica do corpo.",
+        "estomatologia": "Foco em Saúde Oral: Especialização técnica em dentes e boca. Diferencia-se de Enfermagem Geral pela zona específica e técnica de atuação.",
+        "mecatrónica": "A Fusão Industrial: Une mecânica e eletrónica. Diferencia-se da Mecânica pura por incluir controlo computorizado e robótica avançada.",
+        "instrumentação": "Foco em Medição e Controlo: Especializa-se nos sensores que gerem refinarias e fábricas. Diferencia-se da Eletricidade por focar no sinal e não na potência.",
+        "frio e climatização": "Foco em Sistemas Térmicos: Instalação de AC e refrigeração industrial. Vital para hospitais e conservação de alimentos.",
+        "eletricidade": "Foco em Alta Tensão e Potência: Instalações prediais e redes de energia. Diferencia-se de Eletrónica por lidar com força e transporte de eletricidade.",
+        "finanças": "Foco em Mercados e Investimento: Análise de risco e capital. Diferente da Contabilidade, foca na rentabilidade futura e gestão bancária.",
+        "contabilidade": "Foco em Rigor Fiscal: Balanços, impostos e conformidade legal. Diferencia-se da Gestão por ser a base técnica e numérica da empresa.",
+        "pedagogia": "Foco em Educação: Psicologia da aprendizagem e formação de professores. Diferencia-se de Administração por focar no processo de ensino.",
+        "administração pública": "Foco no Estado: Gestão de recursos governamentais e serviço eficiente ao cidadão nas instituições públicas.",
+        "construção civil": "Foco em Edificações: Planeamento e execução física de obras. Diferencia-se da arquitetura por focar na engenharia e gestão do estaleiro.",
+        "agronomia": "Foco em Produção Agrícola: Ciência aplicada ao cultivo, solos e pecuária para modernizar a produção alimentar.",
+        "química industrial": "Foco em Processos Químicos: Transformação de matéria em larga escala. Diferente da Bioquímica, foca na indústria pesada e inorgânica.",
+        "petroquímica": "Foco em Hidrocarbonetos: Refinação de petróleo e derivados. Área estratégica fundamental para a economia nacional.",
+        "bioquímica": "Foco na Química da Vida: Processos químicos em seres vivos. Fundamental para diagnósticos clínicos avançados e biotecnologia.",
+        "ambiente": "Foco em Sustentabilidade: Controlo de poluição e garantia de que a indústria respeita as normas ecológicas e a natureza.",
+        "técnicas de laboratório": "Rigor em Ensaios: Base para análises químicas e biológicas precisas que suportam diagnósticos e investigações científicas."
+    };
+
+    // Procura por correspondência no nome do curso
+    const nomeMinusculo = nome.toLowerCase();
+    for (let chave in descricoes) {
+        if (nomeMinusculo.includes(chave.toLowerCase())) {
+            desc = descricoes[chave];
+            break;
+        }
+    }
+
+    document.getElementById('c-duracao').innerText = duracao;
+    document.getElementById('c-desc').innerText = desc;
+    
+    const cursoModal = document.getElementById('cursoModal');
+    if(cursoModal) cursoModal.style.display = "flex";
+}
+
+function fecharModal() { 
+    modal.style.display = "none"; 
+}
+
+// Gerenciador de cliques fora dos modais
+window.onclick = (e) => { 
+    const cursoModal = document.getElementById('cursoModal');
+    if (e.target == modal) fecharModal(); 
+    if (e.target == cursoModal) cursoModal.style.display = "none";
+}
+
+// Iniciar
+window.onload = carregarInstitutosNuvem;
+    </script>
+</body>
+</html>

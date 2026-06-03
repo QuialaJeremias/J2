@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Master - UniAdmin</title>
+    <style>
+        :root {
+            --primary: #0a4da2;
+            --bg: #f0f2f5;
+            --dark: #051326;
+            --accent: #f5b932;
+            --white: #ffffff;
+            --success: #2e7d32;
+            --danger: #c62828;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); display: flex; min-height: 100vh; color: #333; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--dark); color: white; padding: 30px 20px; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar h1 { color: var(--accent); margin-bottom: 40px; font-size: 1.6rem; text-align: center; }
+        .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: 0.3s; color: #adb5bd; display: flex; align-items: center; gap: 10px; }
+        .nav-item:hover, .nav-item.active { background: var(--primary); color: white; }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 260px; padding: 40px; width: calc(100% - 260px); }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .stat-card h3 { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .stat-card p { font-size: 1.6rem; font-weight: bold; margin-top: 5px; }
+
+        /* Tables */
+        .card-panel { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #666; font-size: 0.85rem; }
+        td { padding: 12px; border-bottom: 1px solid #eee; font-size: 0.85rem; vertical-align: middle; }
+
+        .inst-logo { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background: #eee; border: 1px solid #ddd; }
+
+        /* Modais */
+        .modal { display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); justify-content:center; align-items:center; }
+        .modal-content { background:white; padding:30px; border-radius:20px; width:95%; max-width:600px; max-height: 90vh; overflow-y: auto; }
+        
+        label { display:block; margin-top:12px; font-weight:600; font-size: 0.85rem; }
+        input, select, textarea { width:100%; padding:12px; margin-top:5px; border:1px solid #ddd; border-radius:8px; font-size: 0.9rem; }
+        
+        /* Estilos para o Editor de Texto Rico */
+        .rich-editor {
+            width: 100%;
+            min-height: 220px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+            background: white;
+            overflow-y: auto;
+            text-align: left;
+            outline: none;
+        }
+        .rich-editor img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            margin: 10px auto; 
+            border-radius: 8px;
+            object-fit: contain;
+            max-height: 350px;
+        }
+
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.8rem; }
+        .btn-add { background: var(--success); color: white; }
+        .btn-save { background: var(--primary); color: white; width: 100%; margin-top: 20px; }
+        .btn-edit { background: #e3f2fd; color: var(--primary); margin-right: 5px; }
+        .btn-delete { background: #fee2e2; color: var(--danger); }
+        
+        .email-link { color: var(--primary); font-weight: bold; text-decoration: underline; cursor: pointer; }
+        .chat-bubble { background: #f8fafc; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 80px; } .sidebar h1, .nav-item span { display: none; }
+            .main-content { margin-left: 80px; width: calc(100% - 80px); }
+        }
+    </style>
+    <!-- Inclusão de SDKs externas para Email e Banco de Dados Cloud -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/adminAuth.js"></script>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h1>J_Admin</h1>
+        <div class="nav-item active" onclick="switchTab('dash', this)">📊 <span>Dashboard</span></div>
+        <div class="nav-item" onclick="switchTab('tesouraria', this)">💰 <span>Tesouraria</span></div>
+        <div class="nav-item" onclick="switchTab('chat', this)">💬 <span>Histórico</span></div>
+        <div class="nav-item" onclick="switchTab('inst', this)">🏫 <span>Institutos</span></div>
+        <div class="nav-item" onclick="switchTab('info', this)">📢 <span>Publicar Info</span></div>
+        <div class="nav-item" onclick="switchTab('admins', this)">👥 <span>Administradores</span></div>
+        <div style="margin-top: auto;">
+            <a href="#" class="nav-item" onclick="logout(); return false;" style="text-decoration: none;">🚪 <span>Sair</span></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+      <section id="dash" class="tab-content active">
+    <header style="margin-bottom: 30px;">
+        <h1>Visão Geral</h1>
+        <p>Monitorização de inscrições em tempo real.</p>        <p id="dashboardInstituteInfo" style="margin-top: 8px; color:#555; font-size:0.95rem;"></p>    </header>
+    <div class="stats-grid">
+        <div class="stat-card"><h3>Total Inscritos</h3><p id="total-registos">0</p></div>
+        <div class="stat-card"><h3>Curso Líder</h3><p id="curso-pop">---</p></div>
+        <div class="stat-card"><h3>Base de Dados</h3><p style="color:var(--success)">Firebase Online</p></div>
+    </div>
+
+    <div style="display:flex; gap:12px; align-items:center; margin-bottom:18px;">
+        <div style="flex:1"></div>
+        <button class="btn btn-save master-only" style="max-width:260px;" onclick="abrirModalPaginaInfo()">✏️ Editar Informações Públicas</button>
+    </div>
+    <div class="card-panel" style="margin-bottom: 25px;">
+        <h3 style="font-size: 0.9rem; color: var(--primary); margin-bottom: 15px;"> Inscritos por Instituto</h3>
+        <div id="estatisticas-institutos" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            </div>
+    </div>
+
+    <div class="card-panel">
+        <h2>Candidatos Registados</h2>
+        <table>
+    <thead>
+        <tr>
+            <th>Nome / BI</th>
+            <th>E-mail</th>
+            <th>Curso & Escola</th>
+            <th>Encarregado / BI</th>
+            <th>Data</th>
+            <th>Ações</th> </tr>
+    </thead>
+    <tbody id="tabela-corpo"></tbody>
+</table>
+    </div>
+</section>
+
+        <section id="tesouraria" class="tab-content">
+            <header style="margin-bottom: 30px;"><h1>Tesouraria</h1></header>
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Arrecadação</h3><p id="receita-total">0 Kz</p></div>
+                <div class="stat-card"><h3>Pagos</h3><p id="pagos-total">0</p></div>
+            </div>
+            <div class="card-panel">
+                <input type="text" id="buscaTesouraria" placeholder="🔍 Buscar candidato..." onkeyup="filtrarTesouraria()">
+                <table>
+                    <thead><tr><th>Candidato</th><th>E-mail</th><th>RUPE</th><th>Estado</th><th>Ações</th></tr></thead>
+                    <tbody id="tabela-tesouraria"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="chat" class="tab-content">
+            <header style="margin-bottom: 30px;"><h1>Histórico de Mensagens</h1></header>
+            <div id="lista-chat" class="card-panel"></div>
+        </section>
+
+        <section id="inst" class="tab-content">
+            <header style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h1>Rede de Institutos</h1>
+                <button class="btn btn-add master-only" onclick="abrirModalInst()">+ Adicionar Instituto</button>
+            </header>
+            <div class="card-panel">
+                <table>
+                    <thead><tr><th>Logo</th><th>Nome</th><th>Município</th><th>Link</th><th>Ações</th></tr></thead>
+                    <tbody id="tabela-institutos-gestao"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="info" class="tab-content">
+            <header style="margin-bottom: 30px;">
+                <h1>Publicar Informações</h1>
+                <p>Gerencie as informações exibidas na página pública de Informações.</p>
+            </header>
+
+            <div class="card-panel master-only" id="panelEditarHeader" style="display:none; margin-bottom:25px; border-left:4px solid var(--primary);">
+                <h3 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 15px;">🎨 Editar Header da Página Pública</h3>
+                <p style="margin-bottom:15px; color:#555;">Personalize o cabeçalho que aparece na página de informações públicas.</p>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+                    <div>
+                        <label style="font-weight:600; display:block; margin-bottom:5px;">Tag/Badge:</label>
+                        <input type="text" id="adminInputHeaderTag" placeholder="PORTAL DO CANDIDATO 2026" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                    <div>
+                        <label style="font-weight:600; display:block; margin-bottom:5px;">Título Principal (H1):</label>
+                        <input type="text" id="adminInputHeaderH1" placeholder="Ensino Médio em Angola" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Descrição (Parágrafo):</label>
+                    <input type="text" id="adminInputHeaderP" placeholder="Guia Completo para o Ano Letivo 2026/2027" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+                </div>
+
+                <button class="btn btn-save" onclick="adminSalvarHeaderDoAdmin()" style="max-width:300px;">💾 Guardar Alterações do Header</button>
+            </div>
+
+            <div class="card-panel">
+                <h3 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 15px;">📝 Informações Gerais</h3>
+                <label style="font-weight:600; display:block;">Texto para exibir em "Informações Gerais"</label>
+                <div id="adminPaginaInfoText" contenteditable="true" class="rich-editor"></div>
+                <div id="imageSizePanel1" style="display:none; margin-top:15px; padding:15px; background:#f0f2f5; border-radius:8px; border-left:4px solid var(--primary);">
+                    <p style="font-weight:600; margin-bottom:10px; color:var(--primary);">🖼️ Tamanho da Imagem Selecionada</p>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:0.9rem;">Largura (px ou %):</label>
+                            <input type="text" id="imgWidth1" placeholder="300" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.9rem;">Altura (px ou auto):</label>
+                            <input type="text" id="imgHeight1" placeholder="auto" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        </div>
+                    </div>
+                    <button class="btn btn-save" style="margin-top:10px; width:100%; max-width:none;" onclick="aplicarTamanhoimagem1()">Aplicar Tamanho</button>
+                </div>
+                <small style="display:block; margin-top:8px; color:#555;">
+                    Insira o texto livremente e use tags HTML como <code>&lt;img src="URL" alt=""&gt;</code> ou cole imagens diretamente no editor.
+                </small>
+                <button class="btn btn-save master-only" onclick="salvarPaginaInfoDoAdmin()" style="max-width:300px;">Publicar Informações Gerais</button>
+            </div>
+
+            <div class="card-panel" style="margin-top:20px;">
+                <h3 style="font-size: 0.95rem; color: var(--primary); margin-bottom: 15px;">🏛️ Informações do Instituto</h3>
+                <p style="margin-bottom:15px; color:#555;">Administradores de instituto podem publicar informações específicas do seu instituto.</p>
+                <div id="adminInstitutoEditorWrapper" style="display:none;">
+                    <div id="adminInstSelectWrapper" style="margin-bottom:15px; display:none;">
+                        <label style="font-weight:600; display:block;">Selecione o instituto:</label>
+                        <select id="adminInstSelect" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; margin-top:8px; margin-bottom:12px;" onchange="adminCarregarInstInfo()">
+                            <option value="" disabled selected>-- Selecione um instituto --</option>
+                        </select>
+                    </div>
+                    <label style="font-weight:600; display:block;">Informação do instituto</label>
+                    <div id="adminInstInfoText" contenteditable="true" class="rich-editor"></div>
+                    <div id="imageSizePanel2" style="display:none; margin-top:15px; padding:15px; background:#f0f2f5; border-radius:8px; border-left:4px solid var(--primary);">
+                        <p style="font-weight:600; margin-bottom:10px; color:var(--primary);">🖼️ Tamanho da Imagem Selecionada</p>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div>
+                                <label style="font-size:0.9rem;">Largura (px ou %):</label>
+                                <input type="text" id="imgWidth2" placeholder="300" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                            </div>
+                            <div>
+                                <label style="font-size:0.9rem;">Altura (px ou auto):</label>
+                                <input type="text" id="imgHeight2" placeholder="auto" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                            </div>
+                        </div>
+                        <button class="btn btn-save" style="margin-top:10px; width:100%; max-width:none;" onclick="aplicarTamanhoimagem2()">Aplicar Tamanho</button>
+                    </div>
+                    <small style="display:block; margin-top:8px; color:#555;">
+                        Insira o texto do instituto e use <code>&lt;img src="URL" alt=""&gt;</code> diretamente no editor ou cole imagens.
+                    </small>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn btn-save" style="max-width:280px;" onclick="salvarInfoInstDoAdmin()">Publicar Informação do Instituto</button>
+                        <button class="btn btn-delete" style="max-width:220px; display:none;" id="adminInstDeleteBtn" onclick="apagarInfoInstDoAdmin()">Apagar Informação</button>
+                    </div>
+                </div>
+                <p id="adminInstNotPermitted" style="color:#555; padding:15px; background:#f0f2f5; border-radius:8px;">Você não é administrador de um instituto.</p>
+            </div>
+        </section>
+
+        <section id="admins" class="tab-content">
+            <header style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h1>Gestão de Administradores</h1>
+                <button class="btn btn-add master-only" onclick="abrirModalAdmin()">+ Novo Administrador</button>
+            </header>
+            <div class="card-panel">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Instituto</th>
+                            <th>Nível</th>
+                            <th>Status</th>
+                            <th>Data Criação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-admins-gestao"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="modalAdmin" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitleAdmin">Adicionar Administrador</h2>
+            <input type="hidden" id="editIdAdmin" value="-1">
+            <label>Nome Completo:</label>
+            <input type="text" id="nomeAdmin" placeholder="Nome do administrador">
+            <label>Email:</label>
+            <input type="email" id="emailAdmin" placeholder="email@exemplo.com">
+            <label>Senha:</label>
+            <input type="password" id="senhaAdmin" placeholder="Senha segura">
+            <label>Instituto Responsável:</label>
+            <select id="institutoAdmin" required>
+                <option value="">-- Selecione um Instituto --</option>
+            </select>
+            <p style="font-size:0.85rem; color:#555; margin-top:8px; margin-bottom:14px;">Cada instituto só pode ter um administrador. Institutos já usados ficarão desabilitados na lista.</p>
+            <label>Nível de Acesso:</label>
+            <select id="nivelAdmin">
+                <option value="master">🔴 Master (Total)</option>
+                <option value="moderador">🟡 Moderador (Limitado)</option>
+                <option value="visualizador">🟢 Visualizador (Apenas Leitura)</option>
+            </select>
+            <label>
+                <input type="checkbox" id="statusAdmin" checked> Ativo
+            </label>
+            <button class="btn btn-save" onclick="salvarAdmin()">GRAVAR NA NUVEM</button>
+            <button class="btn" style="margin-top: 10px; background: #ccc; width:100%" onclick="fecharModalAdmin()">SAIR</button>
+        </div>
+    </div>
+
+    <div id="modalInst" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitleInst">Cadastrar Instituto</h2>
+            <input type="hidden" id="editIdInst" value="-1">
+            <label>URL da Logo:</label>
+            <input type="text" id="imgInst" placeholder="https://...">
+            <label>Nome Completo:</label>
+            <input type="text" id="nomeInst">
+            <label>Município:</label>
+            <select id="munInst">
+                 <option value="belas">Belas</option>
+                        <option value="cacuaco">Cacuaco</option>
+                        <option value="cazenga">Cazenga</option>
+                        <option value="Icolo e Bengo">Icolo e Bengo</option>
+                        <option value="Kilamba Kiaxi">Kilamba Kiaxi</option>
+                        <option value="Luanda">Luanda</option>
+                        <option value="Talatona">Talatona</option>
+                        <option value="Quiçama">Quiçama</option>
+                        <option value="viana">Viana</option>
+            </select>
+            <label>URL do Site:</label>
+            <input type="text" id="siteInst">
+            <label>Cursos (Separe por vírgula):</label>
+            <textarea id="cursosInst" rows="3"></textarea>
+            <button class="btn btn-save" onclick="salvarInstituto()">GRAVAR NA NUVEM</button>
+            <button class="btn" style="margin-top: 10px; background: #ccc; width:100%" onclick="fecharModalInst()">SAIR</button>
+        </div>
+    </div>
+
+    <div id="modalEmail" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 style="color: var(--primary);">📧 Enviar Notificação</h2>
+            <label>Para:</label>
+            <input type="text" id="emailDestino" readonly>
+            <label>Assunto:</label>
+            <input type="text" id="assuntoEmail">
+            <label>Mensagem:</label>
+            <textarea id="corpoEmail" rows="8"></textarea>
+            <button class="btn btn-save" style="background: var(--success);" onclick="dispararEmail()">ENVIAR AGORA</button>
+            <button class="btn" style="background: #ccc; width: 100%; margin-top: 10px;" onclick="fecharModalEmail()">CANCELAR</button>
+        </div>
+    </div>
+
+    <div id="modalPaginaInfo" class="modal">
+        <div class="modal-content">
+            <h2 id="modalPaginaInfoTitle">Editar Informações Públicas</h2>
+            <label>Texto exibido em "Informações Gerais"</label>
+            <textarea id="paginaInfoTextAreaAdmin" rows="10" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:12px; resize:vertical;"></textarea>
+            <small style="display:block; margin-top:8px; color:#555;">
+                Agora você pode inserir imagens diretamente no texto usando <code>&lt;img src="URL" alt=""&gt;</code>.
+            </small>
+            <button class="btn btn-save" style="margin-top:12px;" onclick="salvarPaginaInfoAdmin()">GUARDAR E PUBLICAR</button>
+            <button class="btn" style="margin-top:10px; background:#ccc; width:100%" onclick="fecharModalPaginaInfo()">CANCELAR</button>
+        </div>
+    </div>
+
+    <script>
+        /*
+            admin2.html - Painel de Administração
+            -------------------------------------
+            Esta página contém todo o painel administrativo da aplicação.
+            O fluxo principal inclui:
+              1. Autenticação do administrador via MultiAdminAuth
+              2. Visualização de inscrições, tesouraria e histórico
+              3. Gestão de institutos e administradores
+              4. Publicação de informações gerais e específicas por instituto
+              5. Envio de e-mails e suporte a editores de texto
+        */
+        // 1. CONFIGURAÇÃO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+            authDomain: "j-direcionamento.firebaseapp.com",
+            projectId: "j-direcionamento",
+            storageBucket: "j-direcionamento.appspot.com",
+            messagingSenderId: "288532637574",
+            appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+        };
+        firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(); // Conexão com o banco de dados em tempo real
+    const adminCtx = MultiAdminAuth.requireAdminContext({ loginPage: 'admin.html' });
+    if (adminCtx) {
+        document.querySelectorAll('.master-only').forEach(el => el.style.display = adminCtx.isMaster ? '' : 'none');
+    }
+
+        // 2. CONFIGURAÇÃO EMAILJS
+        (function() { emailjs.init("dKuLDomo0CwusPKLt"); })();
+
+        let cacheEstudante = {};
+        let inscricoesUnsubscribe = null; // unsubscribe function for live listener
+        let currentStudentEmails = new Set();
+
+    // 3. Lógica para alternar entre as abas do painel admin
+        // switchTab: mostra a aba selecionada e atualiza o estado do menu lateral.
+        function switchTab(tabId, el) {
+        // Esconde todas as secções
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        // Remove o destaque de todos os botões
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active'); // Mostra a secção desejada
+            el.classList.add('active');
+            if(tabId === 'chat') carregarLogChat();
+            if(tabId === 'info') carregarAbaPubInfo();
+        }
+
+        // logout: limpa o contexto do admin e redireciona para a página de login.
+        function logout() {
+            MultiAdminAuth.clearAdminContext();
+            window.location.href = 'admin.html';
+        }
+
+        // 4. SINCRONIZAÇÃO ESTUDANTES
+        // sincronizarEstudantes: carrega inscrições do Firestore, filtra por instituto
+        // e popula as tabelas de candidatos e tesouraria.
+   async function sincronizarEstudantes() {
+    const nivel = (localStorage.getItem('nivel') || '').toLowerCase();
+    const instituto_id = localStorage.getItem('instituto_id') || '';
+    const collection = db.collection("InscricoesOficiais");
+    const fieldCandidates = ['instituto_id', 'institutoId', 'escolaId', 'instituto'];
+
+    let snapshot;
+    let usedField = 'instituto_id';
+
+    if (nivel === 'master') {
+        snapshot = await collection.orderBy("data", "desc").get();
+    } else {
+        if (!instituto_id) {
+            alert('instituto_id não definido no localStorage. Faça login novamente.');
+            return;
+        }
+
+        const instDoc = await db.collection('Institutos').doc(instituto_id).get();
+        if (!instDoc.exists) {
+            alert('Instituto não encontrado. Verifique o ID do instituto no localStorage.');
+            return;
+        }
+
+        const nomeDoInstituto = instDoc.data().nome;
+        console.log("Nome do Instituto buscado:", nomeDoInstituto);
+
+        if (!nomeDoInstituto) {
+            alert('O documento do instituto não contém um nome válido.');
+            return;
+        }
+
+        usedField = 'instituto';
+        snapshot = await collection.where('instituto', '==', nomeDoInstituto).get();
+        console.log("Total de documentos encontrados:", snapshot.docs.length);
+
+        if (snapshot.docs.length === 0) {
+            console.log("Nenhum dado encontrado para o nome:", nomeDoInstituto);
+            const sample = await collection.limit(3).get();
+            sample.docs.forEach(d => console.log("Exemplo de nome na BD:", d.data().instituto));
+        }
+    }
+
+    console.log('sincronizarEstudantes', {
+        nivel,
+        instituto_id,
+        usedField,
+        totalDocs: snapshot.docs.length,
+        docs: snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }))
+    });
+
+    const tCorpo = document.getElementById('tabela-corpo');
+    const tTeso = document.getElementById('tabela-tesouraria');
+    const containerEstats = document.getElementById('estatisticas-institutos');
+    
+    tCorpo.innerHTML = ""; 
+    tTeso.innerHTML = "";
+    containerEstats.innerHTML = "";
+
+    let t = 0, p = 0, r = 0;
+    let cMap = {};
+    let instMap = {};
+
+    currentStudentEmails.clear();
+    snapshot.docs.forEach(doc => {
+        const d = doc.data();
+        if (d.email_contato) currentStudentEmails.add(d.email_contato);
+        t++;
+        cMap[d.curso] = (cMap[d.curso] || 0) + 1;
+        instMap[d.instituto] = (instMap[d.instituto] || 0) + 1;
+
+        const pago = d.status_pagamento === "Pago";
+        if(pago) { r += 2000; p++; }
+
+        const linkEmail = `<span class="email-link" onclick="prepararEmail('${d.email_contato}', '${d.candidato}', '${d.instituto}')">${d.email_contato}</span>`;
+
+        tCorpo.innerHTML += `<tr>
+            <td><b>${d.candidato}</b><br><small style="color:#777">${d.bi_candidato || 'S/ BI'}</small></td>
+            <td>${linkEmail}</td>
+            <td>${d.curso}<br><small>${d.instituto}</small></td>
+            <td><b>${d.encarregado || 'N/D'}</b><br><small style="color:#777">${d.bi_encarregado || 'S/ BI'}</small></td>
+            <td>${d.data?.toDate().toLocaleDateString()}</td>
+            <td><button class="btn btn-delete" onclick="removerInscricao('${doc.id}')">🗑️</button></td>
+        </tr>`;
+
+        tTeso.innerHTML += `<tr>
+            <td>${d.candidato}</td>
+            <td>${d.email_contato}</td>
+            <td>${d.rupe || '---'}</td>
+            <td><b style="color:${pago?'#2e7d32':'#f59e0b'}">${pago?'PAGO':'PENDENTE'}</b></td>
+            <td><button class="btn" onclick="toggleStatus('${doc.id}', ${pago})">Mudar</button></td>
+        </tr>`;
+    });
+
+    Object.keys(instMap).forEach(inst => {
+        containerEstats.innerHTML += `
+            <div style="background: #eef2f7; padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; border: 1px solid #d1d9e6;">
+                <strong>${inst}:</strong> ${instMap[inst]} aluno(s)
+            </div>`;
+    });
+
+    document.getElementById('total-registos').innerText = t;
+    document.getElementById('receita-total').innerText = r.toLocaleString() + " Kz";
+    document.getElementById('pagos-total').innerText = p;
+    if(t > 0) document.getElementById('curso-pop').innerText = Object.keys(cMap).reduce((a, b) => cMap[a] > cMap[b] ? a : b);
+}
+        // 4.5 GESTÃO DE ADMINISTRADORES
+        // carregarInstitutsNoModal: carrega institutos e marca aqueles já atribuídos a um admin.
+        function carregarInstitutsNoModal(callback, currentAdminId = null) {
+            Promise.all([
+                db.collection("Institutos").get(),
+                db.collection("Administradores").get()
+            ]).then(([instSnap, adminSnap]) => {
+                const selectInst = document.getElementById('institutoAdmin');
+                const opcoesExistentes = selectInst.querySelectorAll('option:not(:first-child)');
+                opcoesExistentes.forEach(op => op.remove());
+
+                const assignedInstitutes = {};
+                adminSnap.forEach(adminDoc => {
+                    const adminData = adminDoc.data();
+                    if (adminData.institutoId) {
+                        assignedInstitutes[adminData.institutoId] = assignedInstitutes[adminData.institutoId] || [];
+                        assignedInstitutes[adminData.institutoId].push(adminDoc.id);
+                    }
+                });
+
+                instSnap.forEach(doc => {
+                    const inst = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = inst.nome;
+                    const assigned = assignedInstitutes[doc.id];
+                    if (assigned && (!currentAdminId || !assigned.includes(currentAdminId))) {
+                        option.disabled = true;
+                        option.textContent += ' (admin já criado)';
+                    }
+                    selectInst.appendChild(option);
+                });
+
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }).catch(err => {
+                console.error('Erro ao carregar institutos/admins:', err);
+                if (typeof callback === 'function') callback();
+            });
+        }
+
+        function listarAdmins() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            const corpo = document.getElementById('tabela-admins-gestao');
+            const query = adminCtx.isMaster
+                ? db.collection("Administradores")
+                : db.collection("Administradores").where("institutoId", "==", adminCtx.instituto_id);
+
+            query.onSnapshot(snap => {
+                corpo.innerHTML = "";
+                snap.forEach(doc => {
+                    const admin = doc.data();
+                    const id = doc.id;
+                    const dataCriacao = admin.dataCriacao ? admin.dataCriacao.toDate().toLocaleDateString() : 'N/D';
+                    const nivelBadge = {
+                        'master': '🔴 Master',
+                        'moderador': '🟡 Moderador',
+                        'visualizador': '🟢 Visualizador'
+                    }[admin.nivel] || admin.nivel;
+                    const statusBadge = admin.ativo ? '✅ Ativo' : '❌ Inativo';
+                    
+                    corpo.innerHTML += `<tr>
+                        <td><b>${admin.nome}</b></td>
+                        <td>${admin.email}</td>
+                        <td><b>${admin.instituto || 'Global'}</b></td>
+                        <td>${nivelBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td>${dataCriacao}</td>
+                        <td>
+                            <button class="btn btn-edit" onclick='prepararEdicaoAdmin("${id}", ${JSON.stringify(admin)})'>✏️</button>
+                            <button class="btn btn-delete" onclick="removerAdmin('${id}')">🗑️</button>
+                        </td>
+                    </tr>`;
+                });
+            });
+        }
+
+        // salvarAdmin: cria ou atualiza um administrador no Firestore.
+        // Aplica restrição para que apenas master cadastre novos admins.
+        async function salvarAdmin() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            const id = document.getElementById('editIdAdmin').value;
+            const institutoId = document.getElementById('institutoAdmin').value;
+            const institutoNome = document.getElementById('institutoAdmin').options[document.getElementById('institutoAdmin').selectedIndex].text;
+            
+            const obj = {
+                nome: document.getElementById('nomeAdmin').value,
+                email: document.getElementById('emailAdmin').value,
+                instituto: institutoNome,
+                institutoId: institutoId,
+                nivel: document.getElementById('nivelAdmin').value,
+                ativo: document.getElementById('statusAdmin').checked,
+                dataCriacao: id === "-1" ? new Date() : (await db.collection("Administradores").doc(id).get()).data().dataCriacao
+            };
+
+            const senha = document.getElementById('senhaAdmin').value;
+            if(!obj.nome || !obj.email || !institutoId) return alert("Nome, Email e Instituto são obrigatórios!");
+            if(id === "-1" && !senha) return alert("Senha é obrigatória para novo admin!");
+            if (!adminCtx.isMaster && id === "-1") {
+                return alert("Apenas o administrador master pode cadastrar novos administradores.");
+            }
+
+            try {
+                const query = await db.collection("Administradores").where("institutoId", "==", institutoId).get();
+                const existingAdmin = query.docs.find(doc => doc.id !== id);
+                if (existingAdmin) {
+                    return alert("Já existe um administrador cadastrado para este instituto.");
+                }
+
+                if(id === "-1" || !id) {
+                    obj.senhaHash = btoa(senha); // Simples encoding - usar bcrypt em produção
+                    await db.collection("Administradores").add(obj);
+                } else {
+                    if(senha) obj.senhaHash = btoa(senha);
+                    await db.collection("Administradores").doc(id).get().then(async doc => {
+                        const existing = doc.data();
+                        if (!adminCtx.isMaster && existing.institutoId !== adminCtx.instituto_id) {
+                            throw new Error("Você não pode editar este administrador.");
+                        }
+                        await db.collection("Administradores").doc(id).update(obj);
+                    });
+                }
+                fecharModalAdmin();
+                listarAdmins(); // Recarregar tabela
+                alert("✅ Administrador salvo com sucesso!");
+            } catch (e) { alert("Erro ao salvar: " + e.message); }
+        }
+
+        function prepararEdicaoAdmin(id, admin) {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            document.getElementById('modalTitleAdmin').innerText = "Editar Administrador";
+            document.getElementById('editIdAdmin').value = id;
+            document.getElementById('nomeAdmin').value = admin.nome;
+            document.getElementById('emailAdmin').value = admin.email;
+            document.getElementById('nivelAdmin').value = admin.nivel;
+            document.getElementById('statusAdmin').checked = admin.ativo;
+            document.getElementById('senhaAdmin').value = ""; // Deixar vazio por segurança
+            
+            carregarInstitutsNoModal(() => {
+                const selectInst = document.getElementById('institutoAdmin');
+                selectInst.value = admin.institutoId || "";
+                if (!adminCtx.isMaster) {
+                    selectInst.disabled = true;
+                } else {
+                    selectInst.disabled = false;
+                }
+            }, id);
+            document.getElementById('modalAdmin').style.display = "flex";
+        }
+
+        function abrirModalAdmin() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx.isMaster) {
+                return alert('Apenas o administrador master pode cadastrar novos administradores.');
+            }
+            document.getElementById('modalTitleAdmin').innerText = "Adicionar Administrador";
+            document.getElementById('editIdAdmin').value = "-1";
+            document.querySelectorAll('#modalAdmin input[type="text"], #modalAdmin input[type="email"], #modalAdmin input[type="password"], #modalAdmin select').forEach(i => i.value = "");
+            document.getElementById('statusAdmin').checked = true;
+            document.getElementById('nivelAdmin').value = "moderador";
+            
+            carregarInstitutsNoModal(() => {
+                const selectInst = document.getElementById('institutoAdmin');
+                selectInst.disabled = false;
+            });
+            document.getElementById('modalAdmin').style.display = "flex";
+        }
+
+        function fecharModalAdmin() { 
+            document.getElementById('modalAdmin').style.display = "none";
+        }
+
+        function removerAdmin(id) {
+            if(!id || id === "-1") return;
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            db.collection("Administradores").doc(id).get().then(doc => {
+                if (!doc.exists) return alert('Administrador não encontrado.');
+                const target = doc.data();
+                // Não permitir que um admin apague a sua própria conta
+                if (adminCtx.admin_id && adminCtx.admin_id === id) {
+                    return alert("Você não pode remover a sua própria conta.");
+                }
+
+                if (!adminCtx.isMaster && target.institutoId !== adminCtx.instituto_id) {
+                    return alert("Você só pode remover admins do seu próprio instituto.");
+                }
+                if(confirm("Remover este administrador permanentemente?")) {
+                    db.collection("Administradores").doc(id).delete()
+                        .then(() => {
+                            alert("❌ Administrador removido!");
+                            listarAdmins();
+                        })
+                        .catch(e => alert("Erro ao remover: " + e.message));
+                }
+            });
+        }
+
+        // 5. GESTÃO DE INSTITUTOS
+        function listarInstitutos() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            const corpo = document.getElementById('tabela-institutos-gestao');
+            
+            if (adminCtx.isMaster) {
+                // Master vê todos os institutos
+                db.collection("Institutos").onSnapshot(snap => {
+                    corpo.innerHTML = "";
+                    snap.forEach(doc => {
+                        const it = doc.data();
+                        const id = doc.id;
+                        corpo.innerHTML += `<tr>
+                            <td><img src="${it.img || ''}" class="inst-logo" onerror="this.src='https://via.placeholder.com/40'"></td>
+                            <td><b>${it.nome}</b></td>
+                            <td>${it.mun}</td>
+                            <td><a href="${it.site}" target="_blank">🔗</a></td>
+                            <td>
+                                <button class="btn btn-edit" onclick='prepararEdicaoInst("${id}", ${JSON.stringify(it)})'>✏️</button>
+                                <button class="btn btn-delete" onclick="removerInst('${id}')">🗑️</button>
+                            </td>
+                        </tr>`;
+                    });
+                });
+            } else {
+                // Admin não-master vê apenas seu instituto
+                db.collection("Institutos").doc(adminCtx.instituto_id).onSnapshot(doc => {
+                    corpo.innerHTML = "";
+                    if (doc.exists) {
+                        const it = doc.data();
+                        const id = doc.id;
+                        corpo.innerHTML += `<tr>
+                            <td><img src="${it.img || ''}" class="inst-logo" onerror="this.src='https://via.placeholder.com/40'"></td>
+                            <td><b>${it.nome}</b></td>
+                            <td>${it.mun}</td>
+                            <td><a href="${it.site}" target="_blank">🔗</a></td>
+                            <td>
+                                <button class="btn btn-edit" onclick='prepararEdicaoInst("${id}", ${JSON.stringify(it)})'>✏️</button>
+                            </td>
+                        </tr>`;
+                    } else {
+                        corpo.innerHTML = '<tr><td colspan="5" style="text-align:center;">Instituto não encontrado.</td></tr>';
+                    }
+                });
+            };
+        }
+
+        async function salvarInstituto() {
+            const id = document.getElementById('editIdInst').value;
+            const obj = {
+                img: document.getElementById('imgInst').value,
+                nome: document.getElementById('nomeInst').value,
+                mun: document.getElementById('munInst').value,
+                site: document.getElementById('siteInst').value,
+                cursos: document.getElementById('cursosInst').value
+            };
+
+            if(!obj.nome) return alert("Nome obrigatório!");
+
+            try {
+                if(id === "-1" || !id) {
+                    await db.collection("Institutos").add(obj);
+                } else {
+                    await db.collection("Institutos").doc(id).update(obj);
+                }
+                fecharModalInst();
+            } catch (e) { alert("Erro ao salvar: " + e.message); }
+        }
+
+        function prepararEdicaoInst(id, it) {
+            document.getElementById('modalTitleInst').innerText = "Editar Instituição";
+            document.getElementById('editIdInst').value = id;
+            document.getElementById('imgInst').value = it.img;
+            document.getElementById('nomeInst').value = it.nome;
+            document.getElementById('munInst').value = it.mun;
+            document.getElementById('siteInst').value = it.site;
+            document.getElementById('cursosInst').value = it.cursos;
+            document.getElementById('modalInst').style.display = "flex";
+        }
+
+        function removerInst(id) {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if(!id || id === "-1") return;
+            if (!adminCtx.isMaster) {
+                return alert("Apenas administradores Master podem remover institutos.");
+            }
+            if(confirm("Remover da nuvem definitivamente?")) db.collection("Institutos").doc(id).delete();
+        }
+
+        // 6. UTILITÁRIOS E MODAIS
+        function abrirModalInst() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx.isMaster) {
+                return alert('Apenas administradores Master podem adicionar institutos.');
+            }
+            document.getElementById('modalTitleInst').innerText = "Cadastrar Instituto";
+            document.getElementById('editIdInst').value = "-1";
+            document.querySelectorAll('#modalInst input, #modalInst textarea').forEach(i => i.value = "");
+            document.getElementById('modalInst').style.display = "flex";
+        }
+        function fecharModalInst() { document.getElementById('modalInst').style.display = "none"; }
+        function fecharModalEmail() { document.getElementById('modalEmail').style.display = "none"; }
+        
+        async function toggleStatus(id, atual) {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            try {
+                const docRef = await db.collection("InscricoesOficiais").doc(id).get();
+                if (!docRef.exists) return alert('Registo não encontrado.');
+                const dados = docRef.data();
+
+                if (!adminCtx.isMaster) {
+                    const instDoc = await db.collection('Institutos').doc(adminCtx.instituto_id).get();
+                    const nomeInst = instDoc.exists ? instDoc.data().nome : null;
+                    if (!nomeInst || dados.instituto !== nomeInst) return alert('Acesso negado: só pode alterar inscrições do seu próprio instituto.');
+                }
+
+                await db.collection("InscricoesOficiais").doc(id).update({ status_pagamento: atual ? "Pendente" : "Pago" });
+            } catch (e) { alert('Erro ao atualizar estado: ' + e.message); }
+        }
+        
+        function filtrarTesouraria() {
+            const val = document.getElementById('buscaTesouraria').value.toUpperCase();
+            document.querySelectorAll('#tabela-tesouraria tr').forEach(r => r.style.display = r.innerText.toUpperCase().includes(val) ? "" : "none");
+        }
+
+       function carregarLogChat() {
+    const box = document.getElementById('lista-chat');
+    db.collection("HistoricoMensagens").orderBy("data", "desc").onSnapshot(snap => {
+           const adminCtxLocal = MultiAdminAuth.getAdminContext();
+           box.innerHTML = "";
+           if (snap.empty) {
+               box.innerHTML = "<p>Sem histórico.</p>";
+               return;
+           }
+           snap.forEach(doc => {
+               const log = doc.data();
+               const isMasterLocal = adminCtxLocal && adminCtxLocal.isMaster;
+               const belongsToInstitute = !!log.email && currentStudentEmails.has(log.email);
+               if (!isMasterLocal && !belongsToInstitute) return; // não mostra mensagens de outros institutos
+
+               const showDelete = isMasterLocal || belongsToInstitute;
+               box.innerHTML += `
+                   <div class="chat-bubble">
+                       <div style="display: flex; justify-content: space-between;">
+                           <span class="chat-meta">PARA: ${log.aluno} | ${log.data.toDate().toLocaleString()}</span>
+                           ${showDelete ? `<button class="btn btn-delete" style="padding: 2px 8px;" onclick="removerMensagem('${doc.id}')">🗑️</button>` : ''}
+                       </div>
+                       <p>${log.msg.replace(/\n/g, '<br>')}</p>
+                   </div>`;
+           });
+    });
+}
+
+        function prepararEmail(email, nome, inst) {
+            cacheEstudante = { nome, email };
+            document.getElementById('emailDestino').value = email;
+            document.getElementById('assuntoEmail').value = "Inscrição Confirmada - " + inst;
+            document.getElementById('corpoEmail').value = `Prezado(a) ${nome},\n\nConfirmamos que o seu processo para o instituto ${inst} está ativo.\n\nAtentamente,\nEquipa J_Admin.\nPara mais informações se derija ao intituto a ingressar ou clique no nosso site na opção mais informações`;
+            document.getElementById('modalEmail').style.display = "flex";
+        }
+
+        // Funções para editar a página de "Informações Gerais" (visível em mais_informações.html)
+        // abrirModalPaginaInfo: abre o modal para editar a página pública de informações.
+        async function abrirModalPaginaInfo() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx || !adminCtx.isMaster) return alert('Apenas administradores Master podem editar as informações públicas.');
+            document.getElementById('modalPaginaInfo').style.display = 'flex';
+            await carregarPaginaInfoAdmin();
+        }
+
+        function fecharModalPaginaInfo() {
+            document.getElementById('modalPaginaInfo').style.display = 'none';
+        }
+
+        // carregarPaginaInfoAdmin: busca os dados de 'PaginaInformacoes' para o modal de edição.
+        async function carregarPaginaInfoAdmin() {
+            try {
+                const doc = await db.collection('PaginaInformacoes').doc('principal').get();
+                let textoFinal = '';
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    textoFinal = data.texto || '';
+                    if (data.info_sharded) {
+                        const subSnap = await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').orderBy('index').get();
+                        textoFinal = subSnap.docs.map(d => d.data().bloco).join('');
+                    }
+                }
+
+                document.getElementById('paginaInfoTextAreaAdmin').value = textoFinal;
+            } catch (e) {
+                console.error('Erro ao carregar PáginaInfo:', e);
+                alert('Erro ao carregar a informação da página: ' + (e.message || e));
+            }
+        }
+
+        // salvarPaginaInfoAdmin: salva os ajustes de texto e imagem da página pública.
+        // Se o conteúdo for muito grande, fragmenta em blocos para o Firestore.
+        async function salvarPaginaInfoAdmin() {
+            const texto = document.getElementById('paginaInfoTextAreaAdmin').value.trim();
+            const byteSize = new Blob([texto]).size;
+
+            try {
+                const payload = { 
+                    ultimaAtualizacao: new Date() 
+                };
+
+                if (byteSize > 500000) {
+                    payload.texto = "[CONTEUDO_FRAGMENTADO]";
+                    payload.info_sharded = true;
+
+                    const oldChunks = await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').get();
+                    const batch = db.batch();
+                    oldChunks.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+
+                    const chunkSize = 400000;
+                    let idx = 0;
+                    for (let i = 0; i < texto.length; i += chunkSize) {
+                        await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').doc(`chunk_${idx}`).set({
+                            bloco: texto.substring(i, i + chunkSize),
+                            index: idx
+                        });
+                        idx++;
+                    }
+                } else {
+                    payload.texto = texto;
+                    payload.info_sharded = false;
+                }
+
+                await db.collection('PaginaInformacoes').doc('principal').set(payload, { merge: true });
+                alert('Informação pública guardada com sucesso.');
+                fecharModalPaginaInfo();
+            } catch (e) {
+                console.error('Erro ao salvar PáginaInfo:', e);
+                alert('Erro ao salvar a informação da página: ' + (e.message || e));
+            }
+        }
+
+        // Funções para a aba "Publicar Informações"
+        // salvarPaginaInfoDoAdmin: publica diretamente as informações gerais
+        // visíveis na página pública de informações.
+        async function salvarPaginaInfoDoAdmin() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx || !adminCtx.isMaster) return alert('Apenas o administrador Master pode publicar informações gerais.');
+            
+            const texto = document.getElementById('adminPaginaInfoText').innerHTML;
+            const byteSize = new Blob([texto]).size;
+            
+            try {
+                const payload = {
+                    ultimaAtualizacao: new Date()
+                };
+
+                if (byteSize > 500000) {
+                    payload.texto = "[CONTEUDO_FRAGMENTADO]";
+                    payload.info_sharded = true;
+
+                    const oldChunks = await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').get();
+                    const batch = db.batch();
+                    oldChunks.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+
+                    const chunkSize = 400000;
+                    let idx = 0;
+                    for (let i = 0; i < texto.length; i += chunkSize) {
+                        await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').doc(`chunk_${idx}`).set({
+                            bloco: texto.substring(i, i + chunkSize),
+                            index: idx
+                        });
+                        idx++;
+                    }
+                } else {
+                    payload.texto = texto;
+                    payload.info_sharded = false;
+                }
+
+                await db.collection('PaginaInformacoes').doc('principal').set(payload, { merge: true });
+                alert('Informações gerais publicadas com sucesso!');
+            } catch (e) {
+                alert('Erro ao publicar: ' + (e.message || e));
+            }
+        }
+
+        // carregarHeaderNoAdmin: carrega os dados atuais do header para edição
+        async function carregarHeaderNoAdmin() {
+            try {
+                const doc = await db.collection('ConfiguracaoHeader').doc('principal').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('adminInputHeaderTag').value = data.tag || 'PORTAL DO CANDIDATO 2026';
+                    document.getElementById('adminInputHeaderH1').value = data.titulo || 'Ensino Médio em Angola';
+                    document.getElementById('adminInputHeaderP').value = data.descricao || 'Guia Completo para o Ano Letivo 2026/2027';
+                }
+            } catch (e) {
+                console.error('Erro ao carregar header:', e);
+            }
+        }
+
+        // adminSalvarHeaderDoAdmin: salva as alterações do header no Firestore
+        async function adminSalvarHeaderDoAdmin() {
+            const tag = document.getElementById('adminInputHeaderTag').value.trim();
+            const titulo = document.getElementById('adminInputHeaderH1').value.trim();
+            const descricao = document.getElementById('adminInputHeaderP').value.trim();
+
+            if (!tag || !titulo || !descricao) {
+                alert('Por favor, preencha todos os campos do header.');
+                return;
+            }
+
+            try {
+                await db.collection('ConfiguracaoHeader').doc('principal').set({
+                    tag: tag,
+                    titulo: titulo,
+                    descricao: descricao,
+                    ultimaAtualizacao: new Date()
+                });
+                alert('✅ Header atualizado com sucesso na página pública!');
+            } catch (e) {
+                alert('Erro ao guardar alterações do header: ' + (e.message || e));
+            }
+        }
+
+        // carregando o conteúdo existente e habilitando campos conforme permissão.
+        async function carregarAbaPubInfo() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            
+            // Mostrar painel de edição de header apenas para admin master
+            if (adminCtx && adminCtx.valid && adminCtx.isMaster) {
+                document.getElementById('panelEditarHeader').style.display = 'block';
+                await carregarHeaderNoAdmin();
+            }
+            
+            if (!adminCtx || !adminCtx.isMaster) {
+                document.getElementById('adminPaginaInfoText').disabled = true;
+            } else {
+                try {
+                    const doc = await db.collection('PaginaInformacoes').doc('principal').get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        let textoFinal = data.texto || '';
+
+                        if (data.info_sharded) {
+                            const subSnap = await db.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').orderBy('index').get();
+                            textoFinal = subSnap.docs.map(d => d.data().bloco).join('');
+                        }
+
+                        document.getElementById('adminPaginaInfoText').innerHTML = textoFinal;
+                    }
+                } catch (e) {
+                    console.error('Erro ao carregar informações gerais:', e);
+                }
+            }
+            
+            
+            // Carregar institutos para edição
+            if (adminCtx && adminCtx.valid) {
+                const wrapper = document.getElementById('adminInstitutoEditorWrapper');
+                const notPermitted = document.getElementById('adminInstNotPermitted');
+                const selectWrapper = document.getElementById('adminInstSelectWrapper');
+                const select = document.getElementById('adminInstSelect');
+                
+                if (adminCtx.isMaster) {
+                    wrapper.style.display = '';
+                    notPermitted.style.display = 'none';
+                    selectWrapper.style.display = '';
+                    try {
+                        const snap = await db.collection('Institutos').orderBy('nome').get();
+                        snap.forEach(d => {
+                            const opt = document.createElement('option');
+                            opt.value = d.id;
+                            opt.textContent = d.data().nome || d.id;
+                            select.appendChild(opt);
+                        });
+                    } catch (e) {
+                        console.error('Erro ao carregar institutos:', e);
+                    }
+                } else if (adminCtx.instituto_id) {
+                    wrapper.style.display = '';
+                    notPermitted.style.display = 'none';
+                    selectWrapper.style.display = 'none';
+                    document.getElementById('adminInstSelect').value = adminCtx.instituto_id;
+                    await adminCarregarInstInfo();
+                } else {
+                    wrapper.style.display = 'none';
+                    notPermitted.style.display = '';
+                }
+            }
+        }
+
+        // adminCarregarInstInfo: carrega a informação específica do instituto selecionado
+        // e exibe o botão de exclusão apenas para o autor ou master.
+        async function adminCarregarInstInfo() {
+            const instId = document.getElementById('adminInstSelect').value;
+            if (!instId) return;
+            try {
+                const doc = await db.collection('Institutos').doc(instId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    let textoFinal = data.info_especifica || '';
+
+                    if (data.info_sharded) {
+                        const subSnap = await db.collection('Institutos').doc(instId).collection('conteudo_info').orderBy('index').get();
+                        textoFinal = subSnap.docs.map(d => d.data().bloco).join('');
+                    }
+
+                    document.getElementById('adminInstInfoText').innerHTML = textoFinal;
+                    const adminCtx = MultiAdminAuth.getAdminContext();
+                    const deleteBtn = document.getElementById('adminInstDeleteBtn');
+                    if (adminCtx && (adminCtx.isMaster || adminCtx.admin_id === doc.data().info_autor_id)) {
+                        deleteBtn.style.display = '';
+                    } else {
+                        deleteBtn.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao carregar info do instituto:', e);
+            }
+        }
+
+        // salvarInfoInstDoAdmin: grava a informação do instituto atual no Firestore.
+        // Mantém o autor registrado para controle de exclusão.
+        async function salvarInfoInstDoAdmin() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx || !adminCtx.valid) return alert('Você não é um administrador válido.');
+            
+            const instId = adminCtx.isMaster ? document.getElementById('adminInstSelect').value : adminCtx.instituto_id;
+            if (!instId) return alert('Nenhum instituto selecionado.');
+            
+            const texto = document.getElementById('adminInstInfoText').innerHTML;
+            if (!texto) return alert('Por favor, escreva a informação antes de publicar.');
+            
+            // 2. Verificação de Tamanho e Alerta
+            const byteSize = new Blob([texto]).size;
+            if (byteSize > 800000) {
+                console.warn(`[FIREBASE] Tamanho crítico: ${byteSize} bytes.`);
+            }
+
+            try {
+                const payload = {
+                    ultimaAtualizacaoInfo: new Date(),
+                    info_autor_id: adminCtx.admin_id,
+                    info_autor_nome: adminCtx.nome_admin
+                };
+
+                // 3. Estratégia de Sharding (Fragmentação)
+                if (byteSize > 500000) {
+                    payload.info_especifica = "[CONTEUDO_FRAGMENTADO]";
+                    payload.info_sharded = true;
+
+                    // Limpar fragmentos antigos e criar novos
+                    const oldChunks = await db.collection('Institutos').doc(instId).collection('conteudo_info').get();
+                    const batch = db.batch();
+                    oldChunks.forEach(d => batch.delete(d.ref));
+                    await batch.commit();
+
+                    const chunkSize = 400000; // Blocos de 400KB
+                    let idx = 0;
+                    for (let i = 0; i < texto.length; i += chunkSize) {
+                        await db.collection('Institutos').doc(instId).collection('conteudo_info').doc(`chunk_${idx}`).set({
+                            bloco: texto.substring(i, i + chunkSize),
+                            index: idx
+                        });
+                        idx++;
+                    }
+                } else {
+                    payload.info_especifica = texto;
+                    payload.info_sharded = false;
+                }
+
+                await db.collection('Institutos').doc(instId).set(payload, { merge: true });
+                alert('Informação do instituto publicada com sucesso!');
+                await adminCarregarInstInfo();
+            } catch (e) {
+                alert('Erro ao publicar: ' + (e.message || e));
+            }
+        }
+
+        // apagarInfoInstDoAdmin: remove o conteúdo específico do instituto,
+        // permitido apenas para o autor original ou master.
+        async function apagarInfoInstDoAdmin() {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (!adminCtx || !adminCtx.valid) return alert('Você não é um administrador válido.');
+            
+            const instId = adminCtx.isMaster ? document.getElementById('adminInstSelect').value : adminCtx.instituto_id;
+            const doc = await db.collection('Institutos').doc(instId).get();
+            if (!adminCtx.isMaster && adminCtx.admin_id !== doc.data().info_autor_id) {
+                return alert('Apenas o Master ou o autor original podem apagar.');
+            }
+            
+            if (!confirm('Tem certeza de que deseja apagar a informação do instituto?')) return;
+            
+            try {
+                // Apagar fragmentos se existirem
+                const chunks = await db.collection('Institutos').doc(instId).collection('conteudo_info').get();
+                const batch = db.batch();
+                chunks.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+
+                await db.collection('Institutos').doc(instId).update({
+                    info_especifica: firebase.firestore.FieldValue.delete(),
+                    info_autor_id: firebase.firestore.FieldValue.delete(),
+                    info_autor_nome: firebase.firestore.FieldValue.delete(),
+                    ultimaAtualizacaoInfo: firebase.firestore.FieldValue.delete(),
+                    info_sharded: firebase.firestore.FieldValue.delete()
+                });
+                document.getElementById('adminInstInfoText').innerHTML = '';
+                document.getElementById('adminInstDeleteBtn').style.display = 'none';
+                alert('Informação do instituto apagada com sucesso!');
+            } catch (e) {
+                alert('Erro ao apagar: ' + (e.message || e));
+            }
+        }
+
+        async function dispararEmail() {
+            const para = document.getElementById('emailDestino').value;
+            const msg = document.getElementById('corpoEmail').value;
+            const btn = document.querySelector('#modalEmail .btn-save');
+            btn.innerText = "⏳ A ENVIAR..."; btn.disabled = true;
+
+            try {
+                await emailjs.send("jeremiasquiala", "template_akkmhr9", { to_email: para, message: msg, to_name: cacheEstudante.nome });
+                await db.collection("HistoricoMensagens").add({ aluno: cacheEstudante.nome, email: para, msg: msg, data: new Date() });
+                alert("✅ E-mail enviado!");
+                fecharModalEmail();
+            } catch (e) { alert("Erro ao enviar: " + e); }
+            finally { btn.innerText = "ENVIAR AGORA"; btn.disabled = false; }
+        }
+
+        // Função para permitir colar imagens nos editores de texto
+        function configurarSuporteColarImagem(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            if (!textarea) return;
+
+            textarea.addEventListener('paste', function(e) {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let item of items) {
+                    if (item.type.indexOf('image') !== -1) {
+                        const blob = item.getAsFile();
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            document.execCommand('insertImage', false, event.target.result);
+                            alert("📸 Imagem inserida no editor!");
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                }
+            });
+        }
+
+        // Variável global para rastrear a imagem selecionada
+        let selectedImage = null;
+        let selectedImagePanel = null;
+
+        // configurarControleImagemEditor: permite clicar em imagens para ajustar o tamanho
+        function configurarControleImagemEditor(editorId, panelId) {
+            const editor = document.getElementById(editorId);
+            if (!editor) return;
+
+            editor.addEventListener('click', function(e) {
+                if (e.target && e.target.tagName === 'IMG') {
+                    selectedImage = e.target;
+                    selectedImagePanel = panelId;
+                    document.getElementById(panelId).style.display = 'block';
+                    
+                    // Preencher campos com tamanho atual
+                    const widthField = panelId === 'imageSizePanel1' ? 'imgWidth1' : 'imgWidth2';
+                    const heightField = panelId === 'imageSizePanel1' ? 'imgHeight1' : 'imgHeight2';
+                    
+                    document.getElementById(widthField).value = e.target.style.width || e.target.width || '';
+                    document.getElementById(heightField).value = e.target.style.height || e.target.height || 'auto';
+                }
+            });
+
+            // Fechar o painel quando clica fora da imagem
+            editor.addEventListener('blur', function() {
+                setTimeout(() => {
+                    if (selectedImage && !selectedImage.parentElement.contains(document.activeElement)) {
+                        // Só mantém aberto se o foco estiver ainda no painel
+                    }
+                }, 100);
+            });
+        }
+
+        // aplicarTamanhoimagem1: aplica tamanho à imagem selecionada no editor de Informações Gerais
+        function aplicarTamanhoimagem1() {
+            if (!selectedImage || selectedImagePanel !== 'imageSizePanel1') {
+                alert('Por favor, clique em uma imagem primeiro.');
+                return;
+            }
+            
+            const width = document.getElementById('imgWidth1').value.trim();
+            const height = document.getElementById('imgHeight1').value.trim();
+            
+            if (width) {
+                // Garantir que a largura não ultrapasse 100% do container
+                if (width.includes('%')) {
+                    selectedImage.style.width = Math.min(parseInt(width), 100) + '%';
+                } else {
+                    // Converter para número e limitar a 100% da largura do editor (aprox. 500px)
+                    const widthNum = parseInt(width);
+                    selectedImage.style.width = (widthNum > 500 ? '500px' : width);
+                }
+            }
+            if (height && height !== 'auto') {
+                selectedImage.style.height = height;
+            }
+            if (height === 'auto') {
+                selectedImage.style.height = 'auto';
+            }
+            
+            alert('✅ Tamanho da imagem ajustado!');
+        }
+
+        // aplicarTamanhoimagem2: aplica tamanho à imagem selecionada no editor de Informação do Instituto
+        function aplicarTamanhoimagem2() {
+            if (!selectedImage || selectedImagePanel !== 'imageSizePanel2') {
+                alert('Por favor, clique em uma imagem primeiro.');
+                return;
+            }
+            
+            const width = document.getElementById('imgWidth2').value.trim();
+            const height = document.getElementById('imgHeight2').value.trim();
+            
+            if (width) {
+                // Garantir que a largura não ultrapasse 100% do container
+                if (width.includes('%')) {
+                    selectedImage.style.width = Math.min(parseInt(width), 100) + '%';
+                } else {
+                    // Converter para número e limitar a 100% da largura do editor (aprox. 500px)
+                    const widthNum = parseInt(width);
+                    selectedImage.style.width = (widthNum > 500 ? '500px' : width);
+                }
+            }
+            if (height && height !== 'auto') {
+                selectedImage.style.height = height;
+            }
+            if (height === 'auto') {
+                selectedImage.style.height = 'auto';
+            }
+            
+            alert('✅ Tamanho da imagem ajustado!');
+        }
+
+        // 7. CARGA INICIAL AUTOMÁTICA
+        window.onload = async () => {
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            if (adminCtx && !adminCtx.isMaster) {
+                const instituteInfoEl = document.getElementById('dashboardInstituteInfo');
+                const instDoc = await db.collection('Institutos').doc(adminCtx.instituto_id).get();
+                if (instDoc.exists) {
+                    instituteInfoEl.innerText = `Dados do instituto: ${instDoc.data().nome} (${adminCtx.instituto_id}). Apenas estudantes desse instituto são exibidos.`;
+                } else {
+                    instituteInfoEl.innerText = `Dados do instituto: ${adminCtx.instituto_id}. Apenas estudantes desse instituto são exibidos.`;
+                }
+            }
+
+            // Configura o suporte a colar imagem nos editores ativos
+            configurarSuporteColarImagem('adminPaginaInfoText');
+            configurarSuporteColarImagem('adminInstInfoText');
+            
+            // Configura o controle de tamanho de imagem ao clicar
+            configurarControleImagemEditor('adminPaginaInfoText', 'imageSizePanel1');
+            configurarControleImagemEditor('adminInstInfoText', 'imageSizePanel2');
+
+            sincronizarEstudantes();
+            listarInstitutos();
+            listarAdmins();
+
+            const snap = await db.collection("Institutos").limit(1).get();
+            if (snap.empty) {
+                const listaBase = [
+                    { nome: "ITEL (Telecomunicações)", mun: "Rangel", img: "https://i.postimg.cc/94TyKw3p/itel.png", site: "https://itel.gov.ao", cursos: "Gestão de Sistemas, Informática, Eletrónica" },
+                    { nome: "IPIL (Makarenko)", mun: "Luanda", img: "https://i.postimg.cc/7YQgnqg5/imil.webp", site: "https://www.ipil.ao", cursos: "Informática, Química, Construção, Mecânica, Mecatrónica" },
+                    { nome: "IMEL (Economia)", mun: "Maianga", img: "https://i.postimg.cc/7LtXCSmp/imel.jpg", site: "#", cursos: "Contabilidade, Gestão Empresarial, Informática de Gestão" },
+                    { nome: "EFTSL (Saúde)", mun: "Samba", img: "https://i.postimg.cc/rwFPKyqd/unnamed.jpg", site: "#", cursos: "Enfermagem Geral, Análises Clínicas" },
+                    { nome: "IPIKK (Nova Vida)", mun: "Kilamba Kiaxi", img: "https://via.placeholder.com/40", site: "#", cursos: "Mecatrónica, Eletromecânica" },
+                    { nome: "Inst. Politécnico Alda Lara", mun: "Luanda", img: "https://i.postimg.cc/ZK99Zpdm/aldalara.jpg", site: "#", cursos: "Informática, Desenhador Projetista" },
+                    { nome: "Inst. Politécnico de Viana", mun: "Viana", img: "https://via.placeholder.com/40", site: "#", cursos: "Energia e Inst. Elétricas, Gestão de Sistemas" },
+                    { nome: "CEFOPESCAS", mun: "Cacuaco", img: "https://i.postimg.cc/HLbZNr2v/OIP.webp", site: "#", cursos: "Mecânica Naval, Tecnologia de Pescado" },
+                    { nome: "Inst. Politécnico de Cacuaco", mun: "Cacuaco", img: "https://via.placeholder.com/40", site: "#", cursos: "Informática, Frio e Climatização" },
+                    { nome: "IMNE Garcia Neto", mun: "Luanda", img: "https://via.placeholder.com/40", site: "#", cursos: "Ensino de Matemática e Física" },
+                    { nome: "Magistério Mutu-ya-Kevela", mun: "Luanda", img: "https://via.placeholder.com/40", site: "#", cursos: "Educação de Infância, Ensino Primário" },
+                    { nome: "Hotelaria e Turismo", mun: "Talatona", img: "https://via.placeholder.com/40", site: "#", cursos: "Culinária, Gestão de Turismo" },
+                    { nome: "ITPP (Politécnico)", mun: "Cazenga", img: "https://via.placeholder.com/40", site: "#", cursos: "Informática, Eletricidade Industrial" },
+                    { nome: "IMS do Cazenga", mun: "Cazenga", img: "https://via.placeholder.com/40", site: "#", cursos: "Enfermagem Geral, Estomatologia" }
+                ];
+                for (const x of listaBase) { await db.collection("Institutos").add(x); }
+                alert("Institutos carregados com sucesso!");
+            }
+        };
+
+        // removerInscricao: apaga uma inscrição após confirmação,
+        // respeitando o limite de acesso por instituto para admins não-master.
+        async function removerInscricao(id) {
+            if (!confirm("Deseja eliminar este registo de inscrição permanentemente?")) return;
+            const adminCtx = MultiAdminAuth.getAdminContext();
+            try {
+                const docRef = await db.collection("InscricoesOficiais").doc(id).get();
+                if (!docRef.exists) return alert('Registo não encontrado.');
+                const dados = docRef.data();
+
+                if (!adminCtx.isMaster) {
+                    const instDoc = await db.collection('Institutos').doc(adminCtx.instituto_id).get();
+                    const nomeInst = instDoc.exists ? instDoc.data().nome : null;
+                    if (!nomeInst || dados.instituto !== nomeInst) return alert('Acesso negado: só pode eliminar inscrições do seu próprio instituto.');
+                }
+
+                await db.collection("InscricoesOficiais").doc(id).delete();
+                alert("Registo eliminado com sucesso!");
+            } catch (e) { alert("Erro ao eliminar: " + e.message); }
+        }
+
+        // removerMensagem: exclui uma mensagem do histórico apenas se o admin tiver permissão.
+        // Master pode remover qualquer mensagem; admins de instituto removem apenas as suas.
+        function removerMensagem(id) {
+    if(!confirm("Eliminar esta mensagem do histórico?")) return;
+    const adminCtxLocal = MultiAdminAuth.getAdminContext();
+    db.collection("HistoricoMensagens").doc(id).get().then(doc => {
+        if(!doc.exists) return alert('Mensagem não encontrada.');
+        const data = doc.data();
+        const isMasterLocal = adminCtxLocal && adminCtxLocal.isMaster;
+        const belongsToInstitute = !!data.email && currentStudentEmails.has(data.email);
+        if(!isMasterLocal && !belongsToInstitute) return alert('Acesso negado: só pode eliminar mensagens do seu instituto.');
+        return db.collection("HistoricoMensagens").doc(id).delete();
+    }).then(() => {
+        alert("Mensagem eliminada com sucesso!");
+    }).catch(e => {
+        if(e && e.message) alert("Erro ao eliminar: " + e.message);
+    });
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão - UniAdmin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/adminAuth.js"></script>
+    
+    <style>
+        :root { --primary: #0a4da2; --dark: #051326; --accent: #f5b932; --bg: #f0f2f5; }
+        * { margin:0; padding:0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); display: flex; min-height: 100vh; }
+
+        .sidebar { width: 260px; background: var(--dark); color: white; padding: 30px 20px; position: fixed; height: 100vh; transition: 0.3s; }
+        .sidebar h1 { color: var(--accent); font-size: 1.5rem; text-align: center; margin-bottom: 40px; }
+        .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; color: #adb5bd; display: flex; align-items: center; gap: 12px; text-decoration: none; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background: var(--primary); color: white; }
+        
+        .master-only { display: none; } 
+
+        .main-content { flex: 1; margin-left: 260px; padding: 40px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .stat-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-bottom: 4px solid var(--primary); }
+        .stat-card h3 { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .stat-card p { font-size: 1.8rem; font-weight: bold; margin-top: 5px; }
+
+        .panel { background: white; padding: 30px; border-radius: 16px; margin-top: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #666; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; display: inline-block; margin-top: 5px; }
+        .badge-master { background: #fef3c7; color: #92400e; }
+        .badge-sub { background: #e0f2fe; color: #075985; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h1>UniAdmin</h1>
+        <nav>
+            <a href="#" class="nav-item active"><i class="fas fa-chart-pie"></i> <span>Dashboard</span></a>
+            <a href="#" class="nav-item master-only" id="btn-inst"><i class="fas fa-building-columns"></i> <span>Todos Institutos</span></a>
+            <a href="#" class="nav-item master-only" id="btn-users"><i class="fas fa-users-cog"></i> <span>Gerir Admins</span></a>
+            <a href="#" class="nav-item"><i class="fas fa-user-graduate"></i> <span>Candidatos</span></a>
+            <div style="margin-top: 50px; border-top: 1px solid #334155; padding-top: 20px;">
+                <a href="#" onclick="logout()" class="nav-item" style="color: #f87171;"><i class="fas fa-sign-out-alt"></i> <span>Sair do Sistema</span></a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <h2 id="welcome-msg">Bem-vindo</h2>
+                <p id="role-badge" class="badge">Carregando...</p>
+            </div>
+            <div style="text-align: right;">
+                <p id="current-date" style="font-weight: 600;"></p>
+                <p id="inst-name" style="color: var(--primary); font-size: 0.9rem; font-weight: bold;"></p>
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <h3>Inscrições Ativas</h3>
+                <p id="stat-inscricoes">0</p>
+            </div>
+            <div class="stat-card master-only" id="card-total-inst">
+                <h3>Total de Institutos</h3>
+                <p>14</p>
+            </div>
+            <div class="stat-card">
+                <h3>Status da Rede</h3>
+                <p style="color: #10b981;">Online</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h3 id="table-title">Candidatos Recentes</h3>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Candidato</th>
+                        <th>BI / Telefone</th>
+                        <th>Instituto</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script>
+        /*
+            admin_panel.html
+            ----------------
+            Dashboard principal de administradores com visualização de candidatos
+            e acesso condicionado ao nível do admin. Utiliza o contexto de
+            `MultiAdminAuth` para proteger dados e exibir somente o que é permitido.
+        */
+        // 1. CONFIGURAÇÃO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+            authDomain: "j-direcionamento.firebaseapp.com",
+            projectId: "j-direcionamento",
+            storageBucket: "j-direcionamento.appspot.com",
+            messagingSenderId: "288532637574",
+            appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-PT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // 2. INICIALIZAÇÃO DO DASHBOARD
+        async function initDashboard() {
+            const adminCtx = MultiAdminAuth.requireAdminContext({ loginPage: 'admin.html' });
+            if (!adminCtx) return;
+
+            document.getElementById('welcome-msg').innerText = `Bem-vindo, ${adminCtx.nome_admin}`;
+            const badge = document.getElementById('role-badge');
+
+            badge.innerText = adminCtx.isMaster ? 'Nível: Administrador Master' : 'Nível: Gestor de Instituto';
+            badge.classList.add(adminCtx.isMaster ? 'badge-master' : 'badge-sub');
+            document.querySelectorAll('.master-only').forEach(el => el.style.display = adminCtx.isMaster ? 'flex' : 'none');
+            document.getElementById('table-title').innerText = adminCtx.isMaster ? "Candidaturas Globais" : `Candidatos - ${adminCtx.nome_admin}`;
+            document.getElementById('inst-name').innerText = adminCtx.isMaster ? "📍 Acesso Total" : `🏢 ${adminCtx.instituto_id}`;
+
+            carregarDadosReais();
+        }
+
+        // 3. CARREGAR DADOS DO FIRESTORE
+        function carregarDadosReais() {
+            const query = MultiAdminAuth.buildAdminQuery(db.collection("InscricoesOficiais"), { field: 'instituto_id' });
+            if (!query) {
+                return;
+            }
+
+            // Snapshot em tempo real
+            query.onSnapshot(snap => {
+                const tbody = document.getElementById('table-body');
+                document.getElementById('stat-inscricoes').innerText = snap.size;
+                
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhum candidato encontrado.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = snap.docs.map(doc => {
+                    const c = doc.data();
+                    return `
+                        <tr>
+                            <td><b>${c.candidato || 'Sem nome'}</b></td>
+                            <td>${c.bi || c.telefone || '---'}</td>
+                            <td>${c.instituto}</td>
+                            <td><span style="color: green">✓ Inscrito</span></td>
+                        </tr>
+                    `;
+                }).join('');
+            }, err => {
+                console.error("Erro ao ler dados:", err);
+                alert("Erro de permissão no Firebase. Verifique as 'Rules'.");
+            });
+        }
+
+        function logout() {
+            MultiAdminAuth.clearAdminContext();
+            sessionStorage.clear();
+            window.location.href = 'admin.html';
+        }
+
+        initDashboard();
+    </script>
+</body>
+</html>

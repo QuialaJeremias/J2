@@ -1,0 +1,16 @@
+/* Estilo padrão para computadores */
+.container-principal {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas */
+}
+
+/* Ajuste para ecrãs menores que 768px (Tablets e Telemóveis) */
+@media (max-width: 768px) {
+    .container-principal {
+        grid-template-columns: 1fr; /* Muda para apenas uma coluna */
+    }
+   
+    h1 {
+        font-size: 1.5rem; /* Reduz o tamanho do título */
+    }
+}

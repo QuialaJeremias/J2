@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Painel Admin - UniDirecionamento</title>
+
+<style>
+
+:root{
+--primary:#0a4da2;
+--accent:#f5b932;
+--bg:#f4f7fa;
+--white:#ffffff;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+background:var(--bg);
+display:flex;
+min-height:100vh;
+}
+
+/* sidebar */
+
+.sidebar{
+width:280px;
+background:#051326;
+color:white;
+padding:40px 20px;
+position:fixed;
+height:100vh;
+}
+
+.sidebar h2{
+color:var(--accent);
+margin-bottom:50px;
+font-size:1.2rem;
+}
+
+.nav-btn{
+width:100%;
+padding:15px;
+margin-bottom:15px;
+border:none;
+border-radius:12px;
+background:transparent;
+color:#adb5bd;
+text-align:left;
+font-weight:600;
+cursor:pointer;
+}
+
+.nav-btn.active{
+background:var(--primary);
+color:white;
+}
+
+/* conteúdo */
+
+.content{
+margin-left:280px;
+flex:1;
+padding:40px;
+}
+
+.view{
+display:none;
+}
+
+.view.active{
+display:block;
+}
+
+h1{
+margin-bottom:30px;
+}
+
+/* botão voltar */
+
+.btn-back{
+background:#e3f2fd;
+color:#0a4da2;
+border:none;
+padding:10px 18px;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+margin-bottom:20px;
+}
+
+/* tabela */
+
+.table-container{
+background:white;
+padding:25px;
+border-radius:16px;
+box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+text-align:left;
+padding:15px;
+border-bottom:2px solid #eee;
+}
+
+td{
+padding:15px;
+border-bottom:1px solid #eee;
+}
+
+/* botões */
+
+.actions{
+display:flex;
+gap:10px;
+}
+
+.btn-action{
+padding:8px 12px;
+border-radius:8px;
+border:none;
+cursor:pointer;
+font-size:0.8rem;
+}
+
+.btn-edit{
+background:#e3f2fd;
+color:#1976d2;
+}
+
+.btn-delete{
+background:#ffebee;
+color:#c62828;
+}
+
+.btn-add{
+background:var(--accent);
+color:#000;
+padding:12px 25px;
+font-weight:bold;
+margin-bottom:20px;
+}
+
+.inst-img-small{
+width:40px;
+height:40px;
+border-radius:8px;
+object-fit:cover;
+margin-right:10px;
+}
+
+/* formulário */
+
+.form-box{
+
+background:white;
+padding:25px;
+border-radius:16px;
+margin-top:30px;
+
+}
+
+input,select{
+
+width:100%;
+padding:12px;
+margin-bottom:15px;
+border-radius:10px;
+border:1px solid #ddd;
+
+}
+
+.save-btn{
+
+background:var(--primary);
+color:white;
+border:none;
+padding:12px;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+</style>
+</head>
+
+<body>
+
+<nav class="sidebar">
+
+<h2>UniAdmin Panel</h2>
+
+<button class="nav-btn active"
+onclick="showView('matriculados',this)">
+📋 Alunos Matriculados
+</button>
+
+<button class="nav-btn"
+onclick="showView('instituicoes',this)">
+🏢 Gerir Instituições
+</button>
+
+</nav>
+
+<main class="content">
+
+<button class="btn-back" onclick="history.back()">← Voltar</button>
+
+<!-- alunos -->
+
+<section id="view-matriculados" class="view active">
+
+<h1>Registo de Matriculados</h1>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Nome do Estudante</th>
+<th>Curso Escolhido</th>
+<th>Instituição</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td><b>António Manuel</b></td>
+<td>Farmácia</td>
+<td>IMSAL</td>
+</tr>
+
+<tr>
+<td><b>Helena Santos</b></td>
+<td>Análises Clínicas</td>
+<td>IMSAL</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+<!-- instituições -->
+
+<section id="view-instituicoes" class="view">
+
+<h1>Gestão de Instituições</h1>
+
+<button class="btn-action btn-add"
+onclick="mostrarFormulario()">
++ Adicionar Instituição
+</button>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Instituição</th>
+<th>Município</th>
+<th>Cursos</th>
+<th>Vagas</th>
+<th>Ações</th>
+</tr>
+
+</thead>
+
+<tbody id="lista-institutos">
+
+<tr>
+
+<td>
+<img src="imsal.jpg" class="inst-img-small">
+<b>IMSAL</b>
+</td>
+
+<td>Maianga</td>
+
+<td>Farmácia</td>
+
+<td>120</td>
+
+<td class="actions">
+
+<button class="btn-action btn-edit"
+onclick="editarInstituicao(this)">
+Editar
+</button>
+
+<button class="btn-action btn-delete"
+onclick="removerInstituicao(this)">
+Remover
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<!-- formulário -->
+
+<div class="form-box" id="formInstituicao" style="display:none;">
+
+<h3>Nova Instituição</h3>
+
+<input type="text" id="nomeInst"
+placeholder="Nome da instituição">
+
+<select id="municipioInst">
+
+<option value="">Município</option>
+
+<option>Belas</option>
+<option>Cacuaco</option>
+<option>Cazenga</option>
+<option>Luanda</option>
+<option>Viana</option>
+<option>Talatona</option>
+<option>Samba</option>
+<option>Kilamba Kiaxi</option>
+
+</select>
+
+<input type="text"
+id="cursoInst"
+placeholder="Cursos lecionados">
+
+<input type="number"
+id="vagasInst"
+placeholder="Número de vagas">
+
+<button class="save-btn"
+onclick="salvarInstituicao()">
+Salvar
+</button>
+
+</div>
+
+</section>
+
+</main>
+
+<script>
+    /*
+        h11.html
+        -------
+        Página de contato ou integração adicional para candidatos, parte final do
+        fluxo de acompanhamento antes da inscrição.
+    */
+
+/* mudar vista */
+
+function showView(viewId,btn){
+
+document.querySelectorAll('.view')
+.forEach(v=>v.classList.remove('active'))
+
+document.getElementById('view-'+viewId)
+.classList.add('active')
+
+document.querySelectorAll('.nav-btn')
+.forEach(b=>b.classList.remove('active'))
+
+btn.classList.add('active')
+
+}
+
+/* mostrar formulário */
+
+function mostrarFormulario(){
+
+document.getElementById('formInstituicao')
+.style.display="block"
+
+}
+
+/* salvar instituição */
+
+function salvarInstituicao(){
+
+let nome=document.getElementById("nomeInst").value
+let municipio=document.getElementById("municipioInst").value
+let curso=document.getElementById("cursoInst").value
+let vagas=document.getElementById("vagasInst").value
+
+if(nome==="") return
+
+let tabela=document.getElementById("lista-institutos")
+
+let linha=tabela.insertRow()
+
+linha.innerHTML=
+
+`
+<td><b>${nome}</b></td>
+<td>${municipio}</td>
+<td>${curso}</td>
+<td>${vagas}</td>
+
+<td class="actions">
+
+<button class="btn-action btn-edit"
+onclick="editarInstituicao(this)">
+Editar
+</button>
+
+<button class="btn-action btn-delete"
+onclick="removerInstituicao(this)">
+Remover
+</button>
+
+</td>
+
+`
+
+}
+
+/* remover */
+
+function removerInstituicao(btn){
+
+btn.closest("tr").remove()
+
+}
+
+/* editar */
+
+function editarInstituicao(btn){
+
+let linha=btn.closest("tr")
+
+let nome=prompt("Nome:",linha.children[0].innerText)
+let local=prompt("Município:",linha.children[1].innerText)
+let curso=prompt("Cursos:",linha.children[2].innerText)
+let vagas=prompt("Vagas:",linha.children[3].innerText)
+
+if(nome) linha.children[0].innerHTML="<b>"+nome+"</b>"
+if(local) linha.children[1].innerText=local
+if(curso) linha.children[2].innerText=curso
+if(vagas) linha.children[3].innerText=vagas
+
+}
+
+</script>
+
+</body>
+</html>

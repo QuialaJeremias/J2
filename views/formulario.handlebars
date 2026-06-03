@@ -1,0 +1,35 @@
+<main class="container mt-5">
+    <h2 class="text-center mb-4">Cadastrar Instituto</h2>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <form action="/cadastrar" method="post" enctype="multipart/form-data">
+                
+                <input type="text" class="form-control mb-3" name="nome" placeholder="Nome da escola (Ex: ITEL, IPIL)" required>
+
+                <input type="text" class="form-control mb-3" name="localizacao" placeholder="Localização (Ex: CTT, Rangel)" required>
+
+                <label class="form-label text-white-50">Logotipo/Imagem do Instituto:</label>
+                <input type="file" class="form-control mb-3" name="img" required>
+
+                <label class="form-label text-white-50">Área de Ensino:</label>
+                <select class="form-select mb-3" name="categoria" required>
+                    <option value="" disabled selected>Selecione a Categoria Principal</option>
+                    <option value="tech">Tecnologia e Informática (ITEL, etc)</option>
+                    <option value="saude">Saúde e Enfermagem (IMS, etc)</option>
+                    <option value="industrial">Engenharia e Construção (Mecânica, Civil, Química)</option>
+                    <option value="eletro">Eletricidade e Energia</option>
+                    <option value="gestao">Gestão e Economia (IMEL, etc)</option>
+                </select>
+
+                <textarea class="form-control mb-3" name="Descrico" placeholder="Descrição dos cursos oferecidos..." rows="3"></textarea>
+
+                <input type="submit" class="btn btn-primary w-100" value="Cadastrar Instituto">
+            </form>
+
+            <a href="/institutos" class="btn btn-success mt-3 w-100">Ver Institutos Cadastrados</a>
+        </div>
+    </div>
+
+    <button onclick="history.back()" class="btn-voltar mt-3">Voltar</button>
+</main>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - UniDirecionamento</title>
+    <style>
+        :root {
+            --primary: #0a4da2;
+            --accent: #f5b932;
+            --bg: #f4f7fa;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: #051326;
+            color: white;
+            padding: 40px 20px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .sidebar h2 { color: var(--accent); margin-bottom: 50px; font-size: 1.2rem; text-transform: uppercase; }
+       
+        .nav-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #adb5bd;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-btn.active { background: var(--primary); color: white; }
+        .nav-btn:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        /* Main Content */
+        .content { margin-left: 280px; flex: 1; padding: 40px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        h1 { margin-bottom: 30px; color: #051326; }
+
+        /* Tabelas e Cards */
+        .table-container {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #eee; color: #888; font-size: 0.9rem; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        /* Ações */
+        .actions { display: flex; gap: 10px; }
+        .btn-action {
+            padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.8rem;
+        }
+        .btn-edit { background: #e3f2fd; color: #1976d2; }
+        .btn-delete { background: #ffebee; color: #c62828; }
+        .btn-add { background: var(--accent); color: #000; padding: 12px 25px; font-weight: bold; margin-bottom: 20px; }
+
+        .inst-img-small { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; vertical-align: middle; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar">
+        <h2>UniAdmin Panel</h2>
+        <button class="nav-btn active" onclick="showView('matriculados', this)">📋 Alunos Matriculados</button>
+        <button class="nav-btn" onclick="showView('instituicoes', this)">🏢 Gerir Instituições</button>
+    </nav>
+
+    <main class="content">
+       
+        <!-- VISTA 1: ALUNOS MATRICULADOS -->
+        <section id="view-matriculados" class="view active">
+            <h1>Registo de Matriculados</h1>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome do Estudante</th>
+                            <th>Curso Escolhido</th>
+                            <th>Instituição</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-matriculados">
+                        <tr>
+                            <td><b>António Manuel</b></td>
+                            <td>Farmácia</td>
+                            <td>IMSAL</td>
+                            <td><span class="status-badge">Confirmado</span></td>
+                        </tr>
+                        <tr>
+                            <td><b>Helena Santos</b></td>
+                            <td>Análises Clínicas</td>
+                            <td>IMSAL</td>
+                            <td><span class="status-badge">Confirmado</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- VISTA 2: GESTÃO DE INSTITUIÇÕES -->
+        <section id="view-instituicoes" class="view">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1>Gestão de Instituições</h1>
+                <button class="btn-action btn-add" onclick="adicionarInstituicao()">+ Adicionar Pública</button>
+            </div>
+            <!-- Formulário de edição do Instituto (visível apenas para admin/master) -->
+            <div id="form-editar-inst" class="table-container" style="margin-top:20px; display:none;">
+                <h2>Editar Instituto</h2>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:10px;">
+                    <input id="inst_nome" class="password-input" placeholder="Nome da Instituição">
+                    <input id="inst_mun" class="password-input" placeholder="Município / Localização">
+                    <input id="inst_cursos" class="password-input" placeholder="Cursos (separados por vírgula)">
+                    <input id="inst_img" class="password-input" placeholder="URL imagem (opcional)">
+                    <input id="inst_site" class="password-input" placeholder="Site (opcional)">
+                    <textarea id="inst_descricao" placeholder="Descrição" style="grid-column: 1 / -1; padding:12px; border-radius:8px; border:1px solid #ddd;"></textarea>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <button class="btn-action btn-edit" onclick="salvarDadosAdmin()">Salvar Alterações</button>
+                    <button class="btn-action btn-delete" onclick="carregarDadosAdmin()">Recarregar</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Instituição</th>
+                            <th>Localização</th>
+                            <th>Cursos</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-institutos">
+                        <tr>
+                            <td><img src="imsal.jpg" class="inst-img-small"> <b>IMSAL</b></td>
+                            <td>Maianga</td>
+                            <td>Saúde</td>
+                            <td class="actions">
+                                <button class="btn-action btn-edit">Editar</button>
+                                <button class="btn-action btn-delete">Remover</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="imil.jpg" class="inst-img-small"> <b>IMIL</b></td>
+                            <td>Samba</td>
+                            <td>Tecnologia/Indústria</td>
+                            <td class="actions">
+                                <button class="btn-action btn-edit">Editar</button>
+                                <button class="btn-action btn-delete">Remover</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /*
+            admin3.html
+            ------------
+            Página de administração para gerir alunos matriculados e instituições.
+            A interface troca entre vistas e permite edição de institutos para
+            administradores com permissão.
+        */
+        function showView(viewId, btn) {
+            // Esconde todas as vistas
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Mostra a vista selecionada
+            document.getElementById('view-' + viewId).classList.add('active');
+           
+            // Atualiza botões da sidebar
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function adicionarInstituicao() {
+            const nome = prompt("Nome da Instituição Pública:");
+            if(nome) {
+                const local = prompt("Localização (Município/Distrito):");
+                const img = prompt("Imagem (Município/Distrito):");
+                const tabela = document.getElementById('lista-institutos');
+                const novaLinha = tabela.insertRow();
+                novaLinha.innerHTML = `
+                    <td><img src="default.jpg" class="inst-img-small"> <b>${nome}</b></td>
+                    <td>${local}</td>
+                    <td>Pendente</td>
+                    <td class="actions">
+                        <button class="btn-action btn-edit">Editar</button>
+                        <button class="btn-action btn-delete" onclick="this.parentElement.parentElement.remove()">Remover</button>
+                    </td>
+                `;
+            }
+        }
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="js/adminAuth.js"></script>
+    <script>
+        // Firebase (mesma config usada nas outras páginas)
+        const firebaseConfig_admin3 = {
+            apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+            authDomain: "j-direcionamento.firebaseapp.com",
+            projectId: "j-direcionamento",
+            storageBucket: "j-direcionamento.appspot.com",
+            messagingSenderId: "288532637574",
+            appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig_admin3);
+        const db_admin3 = firebase.firestore();
+
+        // applyAdminVisibility: verifica o perfil do admin e exibe controles de edição
+        // apenas para master ou admins vinculados a um instituto.
+        function applyAdminVisibility() {
+            const nivel = (localStorage.getItem('nivel') || '').toLowerCase();
+            const instituto_id = localStorage.getItem('instituto_id') || '';
+            if (nivel === 'master' || (nivel === 'admin' && instituto_id)) {
+                document.getElementById('form-editar-inst').style.display = 'block';
+                carregarInfo();
+            } else {
+                document.getElementById('form-editar-inst').style.display = 'none';
+            }
+        }
+
+        async function carregarInfo() {
+            const instituto_id = localStorage.getItem('instituto_id');
+            if (!instituto_id) return alert('Instituto não definido. Faça login com um administrador vinculado.');
+
+            try {
+                const doc = await db_admin3.collection('Institutos').doc(instituto_id).get();
+                if (!doc.exists) {
+                    return alert('Documento do instituto não encontrado.');
+                }
+                const data = doc.data();
+                // Preenche inputs (mantendo os IDs adicionados)
+                document.getElementById('inst_nome').value = data.nome || '';
+                document.getElementById('inst_mun').value = data.mun || '';
+                document.getElementById('inst_cursos').value = data.cursos || '';
+                document.getElementById('inst_img').value = data.img || '';
+                document.getElementById('inst_site').value = data.site || '';
+                
+                // Carregar conteúdo concatenando as 3 partes
+                let textoFinal = (data.info_parte1 || '') + (data.info_parte2 || '') + (data.info_parte3 || '');
+                
+                // Fallback para o campo antigo caso as novas partes estejam vazias
+                if (!textoFinal) textoFinal = data.info_especifica || data.descricao || '';
+                
+                document.getElementById('inst_descricao').value = textoFinal;
+            } catch (e) {
+                console.error('Erro carregarInfo:', e);
+                alert('Erro ao buscar dados do instituto. Veja console.');
+            }
+        }
+
+        async function salvarDadosAdmin() {
+            const nivel = (localStorage.getItem('nivel') || '').toLowerCase();
+            const instituto_id = localStorage.getItem('instituto_id');
+            if (!instituto_id) return alert('Instituto não definido.');
+            if (!(nivel === 'master' || nivel === 'admin')) return alert('Permissão negada.');
+
+            const texto = document.getElementById('inst_descricao').value;
+
+            // 2. Verificação de Tamanho (Limite de 900KB)
+            const byteSize = new Blob([texto]).size;
+            if (byteSize > 900 * 1024) {
+                return alert('O texto é demasiado longo');
+            }
+
+            const payload = {
+                nome: document.getElementById('inst_nome').value.trim(),
+                mun: document.getElementById('inst_mun').value.trim(),
+                cursos: document.getElementById('inst_cursos').value.trim(),
+                img: document.getElementById('inst_img').value.trim(),
+                site: document.getElementById('inst_site').value.trim()
+            };
+
+            try {
+                // Estratégia de Fragmentação em 3 partes fixas
+                const partSize = Math.ceil(texto.length / 3);
+                payload.info_parte1 = texto.substring(0, partSize);
+                payload.info_parte2 = texto.substring(partSize, partSize * 2);
+                payload.info_parte3 = texto.substring(partSize * 2);
+                
+                // Reset do campo antigo e remoção da flag de sharding antiga
+                payload.info_especifica = "";
+                payload.info_sharded = firebase.firestore.FieldValue.delete();
+
+                await db_admin3.collection('Institutos').doc(instituto_id).update(payload);
+                alert('Dados atualizados com sucesso.');
+                await carregarInfo();
+            } catch (e) {
+                console.error('Erro salvarDadosAdmin:', e);
+                alert('Erro ao salvar dados. Veja console.');
+            }
+        }
+
+        // Inicializa visibilidade quando a página carrega
+        window.addEventListener('load', () => {
+            applyAdminVisibility();
+        });
+    </script>
+</body>
+</html>

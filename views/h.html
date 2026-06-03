@@ -1,0 +1,226 @@
+<script>
+    // 1. BASE DE DADOS PADRÃO (O seu modelo antigo que funciona)
+    const institutosPadrao = [
+        
+        
+        {
+            nome: "ITEL (Telecomunicações)",
+            mun: "Rangel",
+            img: "./images (8).jpeg", // Nome do arquivo na sua pasta,
+            site: "https://itel.gov.ao",
+            detalhes: [
+                { curso: "Gestão de Sistemas Informáticos", horario: "Manhã/Tarde", carga: "32h", vagas: "80" },
+                { curso: "Técnico de Informática", horario: "Tarde", carga: "32h", vagas: "120" },
+                { curso: "Eletrónica e Telecomunicações", horario: "Manhã", carga: "34h", vagas: "80" }
+            ]
+        },
+        {
+            nome: "IPIL (Makarenko)",
+            mun: "Luanda (Mutamba)",
+            img: "https://i.postimg.cc/7YQgnqg5/imil.webp",
+            site: "https://ipil.gov.ao",
+            detalhes: [
+                { curso: "Técnico de Informática", horario: "Manhã/Tarde", carga: "32h", vagas: "100" },
+                { curso: "Química Industrial", horario: "Integral", carga: "36h", vagas: "100" },
+                { curso: "Construção Civil", horario: "Manhã/Tarde", carga: "35h", vagas: "150" },
+                { curso: "Mecânica Industrial", horario: "Manhã/Tarde", carga: "34h", vagas: "120" },
+                { curso: "Mecatrónica", horario: "Manhã", carga: "36h", vagas: "60" }
+            ]
+        },
+        {
+            nome: "IMEL (Economia)",
+            mun: "Luanda (Maianga)",
+            img: "https://i.postimg.cc/7LtXCSmp/images-(8).jpg",
+            site: "#",
+            detalhes: [
+                { curso: "Contabilidade", horario: "Manhã/Tarde", carga: "30h", vagas: "200" },
+                { curso: "Gestão Empresarial", horario: "Tarde/Noite", carga: "28h", vagas: "150" },
+                { curso: "Informática de Gestão", horario: "Manhã", carga: "32h", vagas: "100" }
+            ]
+        },
+        {
+            nome: "EFTSL (Saúde)",
+            mun: "Maianga/Samba",
+            img: "https://i.postimg.cc/rwFPKyqd/unnamed.jpg",
+            site: "#",
+            detalhes: [
+                { curso: "Enfermagem Geral", horario: "Manhã", carga: "38h", vagas: "250" },
+                { curso: "Análises Clínicas", horario: "Tarde", carga: "36h", vagas: "100" }
+            ]
+        },
+        {
+            nome: "IPIKK (Nova Vida)",
+            mun: "Kilamba Kiaxi",
+            img: "https://via.placeholder.com/400x200/f5b932/000000?text=IPIKK+Nova+Vida",
+            site: "#",
+            detalhes: [
+                { curso: "Mecatrónica", horario: "Manhã", carga: "36h", vagas: "90" },
+                { curso: "Eletromecânica", horario: "Tarde", carga: "34h", vagas: "80" }
+            ]
+        },
+        {
+            nome: "Inst. Politécnico Alda Lara",
+            mun: "Luanda (Vila Alice)",
+            img: "https://i.postimg.cc/ZK99Zpdm/images-(12).jpg",
+            site: "#",
+            detalhes: [
+                { curso: "Informática", horario: "Manhã", carga: "32h", vagas: "100" },
+                { curso: "Desenhador Projetista", horario: "Manhã", carga: "34h", vagas: "60" }
+            ]
+        },
+        {
+            nome: "Inst. Politécnico de Viana",
+            mun: "Viana (Zango)",
+            img: "https://via.placeholder.com/400x200/333/ffffff?text=IP+Viana",
+            site: "#",
+            detalhes: [
+                { curso: "Energia e Inst. Elétricas", horario: "Manhã/Tarde", carga: "34h", vagas: "150" },
+                { curso: "Gestão de Sistemas", horario: "Tarde", carga: "32h", vagas: "100" }
+            ]
+        },
+        {
+            nome: "CEFOPESCAS",
+            mun: "Cacuaco",
+            img: "https://i.postimg.cc/HLbZNr2v/OIP.webp",
+            site: "#",
+            detalhes: [
+                { curso: "Mecânica Naval", horario: "Manhã", carga: "35h", vagas: "50" },
+                { curso: "Tecnologia de Pescado", horario: "Manhã", carga: "32h", vagas: "40" }
+            ]
+        },
+        {
+            nome: "Inst. Politécnico de Cacuaco",
+            mun: "Cacuaco",
+            img: "https://via.placeholder.com/400x200/0a4da2/ffffff?text=IP+Cacuaco",
+            site: "#",
+            detalhes: [
+                { curso: "Informática", horario: "Manhã", carga: "32h", vagas: "120" },
+                { curso: "Frio e Climatização", horario: "Tarde", carga: "34h", vagas: "60" }
+            ]
+        },
+        {
+            nome: "IMNE Garcia Neto",
+            mun: "Luanda",
+            img: "https://via.placeholder.com/400x200/666/ffffff?text=IMNE+Garcia+Neto",
+            site: "#",
+            detalhes: [
+                { curso: "Ensino de Matemática e Física", horario: "Manhã/Tarde", carga: "30h", vagas: "300" }
+            ]
+        },
+        {
+            nome: "Magistério Mutu-ya-Kevela",
+            mun: "Luanda (Baixa)",
+            img: "https://via.placeholder.com/400x200/333/ffffff?text=Mutu-ya-Kevela",
+            site: "#",
+            detalhes: [
+                { curso: "Educação de Infância", horario: "Manhã", carga: "30h", vagas: "150" },
+                { curso: "Ensino Primário", horario: "Manhã/Tarde", carga: "30h", vagas: "300" }
+            ]
+        },
+        {
+            nome: "Hotelaria e Turismo",
+            mun: "Talatona",
+            img: "https://via.placeholder.com/400x200/ff8c00/ffffff?text=EHT+Luanda",
+            site: "#",
+            detalhes: [
+                { curso: "Culinária e Pastelaria", horario: "Manhã", carga: "34h", vagas: "60" },
+                { curso: "Gestão de Turismo", horario: "Manhã/Tarde", carga: "32h", vagas: "80" }
+            ]
+        },
+        {
+            nome: "ITPP (Politécnico)",
+            mun: "Cazenga",
+            img: "https://via.placeholder.com/400x200/333/ffffff?text=ITPP+Cazenga",
+            site: "#",
+            detalhes: [
+                { curso: "Informática", horario: "Tarde", carga: "32h", vagas: "100" },
+                { curso: "Eletricidade Industrial", horario: "Manhã", carga: "34h", vagas: "80" }
+            ]
+        },
+        {
+            nome: "IMS do Cazenga",
+            mun: "Cazenga (Kalawenda)",
+            img: "https://via.placeholder.com/400x200/28a745/ffffff?text=IMS+Cazenga",
+            site: "#",
+            detalhes: [
+                { curso: "Enfermagem Geral", horario: "Manhã/Tarde", carga: "38h", vagas: "180" },
+                { curso: "Estomatologia", horario: "Manhã", carga: "36h", vagas: "40" }
+            ]
+        }
+    ];
+
+
+    const STORAGE_KEY = 'base_institutos_uni';
+    const grid = document.getElementById('grid');
+    const modal = document.getElementById('instModal');
+    const userMun = localStorage.getItem('municipio') || "";
+
+    // 2. LÓGICA DE CARREGAMENTO (Híbrida: Admin + Padrão)
+    function obterBaseDeDados() {
+        const dadosAdmin = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        
+        // Se o Admin salvou algo, usamos os dados dele. Se não, usamos o padrão.
+        // Importante: Se o Admin limpou tudo, ele volta ao padrão.
+        if (dadosAdmin && dadosAdmin.length > 0) {
+            return dadosAdmin;
+        }
+        return institutosPadrao;
+    }
+
+    let baseAtual = obterBaseDeDados();
+
+    // 3. ORDENAÇÃO POR PROXIMIDADE
+    baseAtual.sort((a, b) => {
+        const aProx = a.mun.toLowerCase().includes(userMun.toLowerCase()) && userMun !== "";
+        const bProx = b.mun.toLowerCase().includes(userMun.toLowerCase()) && userMun !== "";
+        if (aProx && !bProx) return -1;
+        if (!aProx && bProx) return 1;
+        return 0;
+    });
+
+    function renderCards() {
+        grid.innerHTML = baseAtual.map((inst, index) => {
+            const isLocal = userMun !== "" && inst.mun.toLowerCase().includes(userMun.toLowerCase());
+            return `
+                <div class="inst-card" onclick="abrirModal(${index})">
+                    <img src="${inst.img}" class="inst-img" alt="${inst.nome}" onerror="this.src='https://via.placeholder.com/400x200?text=Logo+Indisponível'">
+                    <div class="inst-content">
+                        <span class="inst-name">${inst.nome}</span>
+                        <span class="inst-mun">📍 ${inst.mun}</span>
+                        ${isLocal ? '<span style="font-size:0.7rem; color:#28a745; font-weight:bold; display:block; margin-top:5px;">Próximo de si</span>' : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function abrirModal(index) {
+        const inst = baseAtual[index];
+        document.getElementById('m-nome').innerText = inst.nome;
+        document.getElementById('m-loc').innerText = inst.mun;
+        document.getElementById('m-site').href = inst.site;
+
+        // Caso o Admin tenha criado um instituto sem detalhes (array vazio)
+        if (!inst.detalhes || inst.detalhes.length === 0) {
+            document.getElementById('m-tabela-body').innerHTML = `<tr><td colspan="4" style="text-align:center">Informações de cursos em atualização.</td></tr>`;
+        } else {
+            let rows = inst.detalhes.map(d => `
+                <tr>
+                    <td><strong>${d.curso}</strong></td>
+                    <td>${d.horario || 'N/A'}</td>
+                    <td>${d.carga || 'N/A'}</td>
+                    <td>${d.vagas || 'N/A'}</td>
+                </tr>
+            `).join('');
+            document.getElementById('m-tabela-body').innerHTML = rows;
+        }
+        
+        modal.style.display = "flex";
+    }
+
+    function fecharModal() { modal.style.display = "none"; }
+    window.onclick = (e) => { if (e.target == modal) fecharModal(); }
+
+    // Iniciar
+    renderCards();
+</script>

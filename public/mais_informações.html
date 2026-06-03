@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Acesso 2026/2027 - Ensino Médio Angola</title>
+    <style>
+        :root {
+            --primary: #0a4da2;
+            --secondary: #f5b932;
+            --text: #2d3436;
+            --bg: #ffffff;
+            --light-bg: #f8f9fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--light-bg); color: var(--text); line-height: 1.6; }
+
+        header {
+            background: linear-gradient(135deg, var(--dark, #051326) 0%, var(--primary) 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .container { max-width: 900px; margin: -40px auto 40px; padding: 0 20px; }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            color: #856404;
+        }
+
+        h1 { font-size: 2.2rem; margin-bottom: 10px; }
+        h2 { color: var(--primary); margin: 30px 0 15px; display: flex; align-items: center; gap: 10px; font-size: 1.4rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; background: white; }
+        th { background: var(--primary); color: white; padding: 15px; text-align: left; }
+        td { padding: 15px; border-bottom: 1px solid #eee; }
+
+        .tag {
+            display: inline-block;
+            background: var(--secondary);
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .step-list { list-style: none; }
+        .step-list li { margin-bottom: 12px; padding-left: 30px; position: relative; }
+        .step-list li::before { 
+            content: '✓'; 
+            position: absolute; 
+            left: 0; 
+            color: var(--primary); 
+            font-weight: bold;
+            background: #e7f0fd;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.7rem;
+        }
+
+        footer { text-align: center; padding: 40px; color: #888; font-size: 0.9rem; }
+
+        .btn-inicio {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 40px auto;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 18px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(10, 77, 162, 0.3);
+        }
+
+        .btn-inicio:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(10, 77, 162, 0.4); }
+
+        @media (max-width: 600px) {
+            header { padding: 40px 20px; }
+            h1 { font-size: 1.6rem; }
+            .card { padding: 20px; }
+        }
+
+        .btn-voltar {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 10000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: #06126e;
+            border: 2px solid #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover { background: #f5b932; color: #051326; transform: scale(1.05); }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin: 24px 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-link {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            padding: 14px 18px;
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #d1d9e6;
+            cursor: pointer;
+            color: var(--text);
+            font-weight: 700;
+            transition: background 0.25s, border-color 0.25s, color 0.25s;
+        }
+
+        .tab-link.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .info-pane { display: none; }
+        .info-pane.active { display: block; }
+
+        /* Estilos para imagens dentro dos cards e conteúdo */
+        #pageInfoText img,
+        .card img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 15px auto;
+            border-radius: 12px;
+            object-fit: contain;
+            max-height: 350px;
+        }
+
+        #modalEditarHeader {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <span class="tag" id="headerTag">PORTAL DO CANDIDATO 2026</span>
+        <h1 id="headerH1">Ensino Médio em Angola</h1>
+        <p id="headerP">Guia Completo para o Ano Letivo 2026/2027</p>
+        <button id="btnEditarHeader" onclick="abrirModalEditarHeader()" style="display:none; position:absolute; top:15px; right:15px; padding:8px 16px; background:#ffffff; color:#051326; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.8rem; transition:0.3s;">✏️ Editar Header</button>
+    </header>
+
+ <a href="javascript:history.back()" class="btn-voltar">⬅ Voltar ao Perfil</a>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab-link active" id="tabLinkGeral" onclick="switchInfoTab('geral', this)">📝 Informações Gerais do Sistema</div>
+            <div class="tab-link" id="tabLinkComplementar" onclick="switchInfoTab('complementar', this)">📝 Informação Complementar</div>
+        </div>
+
+        <div id="pane-geral" class="info-pane active">
+            <div class="card">
+                <div class="card" id="paginaInfoCard" style="margin-top:20px;">
+                    <h2>📝 Informação da Página</h2>
+                    <div id="pageInfoText" style="text-align: left;">Carregando informação...</div>
+                </div>
+                <a href="h2.html" class="btn-inicio">INICIAR CANDIDATURA</a>
+            </div>
+        </div>
+
+        <div id="pane-complementar" class="info-pane">
+            <div id="complementaryFeed"></div>
+            <a href="h2.html" class="btn-inicio">INICIAR CANDIDATURA</a>
+        </div>
+
+        <!-- Modal para editar header -->
+        <div id="modalEditarHeader" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:3000; justify-content:center; align-items:center;">
+            <div style="background:white; padding:30px; border-radius:15px; width:90%; max-width:500px;">
+                <h2 style="color:#0a4da2; margin-bottom:20px;">Editar Header da Página</h2>
+                <div style="margin-bottom:15px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Tag/Badge:</label>
+                    <input type="text" id="inputHeaderTag" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Título Principal (H1):</label>
+                    <input type="text" id="inputHeaderH1" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="font-weight:600; display:block; margin-bottom:5px;">Descrição (Parágrafo):</label>
+                    <input type="text" id="inputHeaderP" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="fecharModalEditarHeader()" style="padding:10px 20px; background:#ddd; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Cancelar</button>
+                    <button onclick="salvarAlteracoesHeader()" style="padding:10px 20px; background:#0a4da2; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold;">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 - Sistema de Direcionamento Escolar Angola</p>
+            <p>Informações baseadas nas diretrizes do Ministério da Educação.</p>
+        </footer>
+    </div>
+
+<script>
+    // atualizarMomentoActual: atualiza o painel de status com a fase atual do ciclo escolar.
+    /*
+        mais_informações.html
+        ----------------------
+        Página pública que mostra:
+          - Informações gerais carregadas de Firestore
+          - Feed de cartões de informação por autor
+          - Seleção de instituto e detalhe da informação específica
+        Cada postagem aparece em seu próprio card para que o usuário saiba
+        quem publicou e quando.
+    */
+    function atualizarMomentoActual() {
+        const alertBox = document.getElementById('caixa-momento');
+        if (!alertBox) return; // Sem painel, nada a atualizar
+
+        const agora = new Date();
+        const dia = agora.getDate();
+        const mes = agora.getMonth(); // 4 = Maio
+        const ano = agora.getFullYear();
+        
+        const mesesNome = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+
+        let statusTexto = "";
+
+        // Lógica baseada no calendário oficial da imagem (Inscrições em Agosto)
+        if (ano < 2026) {
+            statusTexto = `<strong>📍 Preparação:</strong> O sistema está configurado para o ciclo 2026.`;
+        } 
+        else if (mes <= 4) { // Janeiro a Maio
+            statusTexto = `<strong>📍 Momento Atual:</strong> Hoje é ${dia} de ${mesesNome[mes]}. Estamos na fase de <b>Planeamento</b>. Prepare a sua documentação e estude as matrizes da 7ª à 9ª classe.`;
+        } 
+        else if (mes >= 5 && mes <= 6) { // Junho e Julho
+            statusTexto = `<strong>📍 Momento Atual:</strong> Estamos em ${mesesNome[mes]}. As inscrições no portal <b>acessoetp.ao</b> abrem no próximo mês. Verifique seu BI!`;
+        }
+        else if (mes === 7) { // Agosto (Mês das inscrições e testes)
+            if (dia < 24) {
+                statusTexto = `<strong>📍 Atenção:</strong> As inscrições começam no dia 24 de Agosto. Prepare o seu certificado!`;
+            } else {
+                statusTexto = `<strong>🚨 FASE CRÍTICA:</strong> As inscrições para o Ensino Técnico estão <b>ABERTAS</b> no portal oficial.`;
+            }
+        }
+        else { // Setembro em diante
+            statusTexto = `<strong>📍 Momento Atual:</strong> Fase de exames, resultados e matrículas. Boa sorte aos candidatos!`;
+        }
+
+        alertBox.innerHTML = statusTexto;
+    }
+
+    window.addEventListener('load', initInfoPage);
+
+    // switchInfoTab: alterna entre os painéis 'Informações Gerais' e 'Complementar'.
+    function switchInfoTab(tabId, el) {
+        document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.info-pane').forEach(pane => pane.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('pane-' + tabId).classList.add('active');
+    }
+
+    // initInfoPage: executa a inicialização da página quando o DOM estiver carregado.
+    async function initInfoPage() {
+        console.log('Inicializando página de informações...');
+        atualizarMomentoActual();
+        await carregarHeaderDoFirestore();
+        await carregarPaginaInfo();
+        
+        // Mostrar botão de edição para admin master
+        const adminCtx = MultiAdminAuth.getAdminContext();
+        if (adminCtx && adminCtx.valid && adminCtx.isMaster) {
+            document.getElementById('btnEditarHeader').style.display = 'block';
+        }
+    }
+
+    // carregarPaginaInfo: busca conteúdo de "PaginaInformacoes" e monta os cards dinamicamente.
+    async function carregarPaginaInfo() {
+        try {
+            const doc = await db_info.collection('PaginaInformacoes').doc('principal').get();
+            const info = doc.exists ? doc.data() : { texto: 'Informação da página ainda não definida.' };
+
+            let textoCompleto = info.texto || '';
+            if (info.info_sharded) {
+                const subSnap = await db_info.collection('PaginaInformacoes').doc('principal').collection('conteudo_info').orderBy('index').get();
+                textoCompleto = subSnap.docs.map(d => d.data().bloco).join('');
+            }
+
+            const textHtml = textoCompleto || 'Sem informação disponível.';
+            document.getElementById('pageInfoText').innerHTML = textHtml;
+            
+            // Carregar Feed de Informações (Complementares e de Institutos)
+            const feedContainer = document.getElementById('complementaryFeed');
+            feedContainer.innerHTML = "";
+
+            // 1. Buscar da coleção 'InformacoesAdicionais' (Múltiplas postagens de admins)
+            const snapAdic = await db_info.collection('InformacoesAdicionais').orderBy('ultimaAtualizacao', 'desc').get();
+            snapAdic.forEach(doc => {
+                const data = doc.data();
+                renderizarInfoCard(feedContainer, data, data.titulo || "📝 Informação Adicional");
+            });
+
+            // 2. Buscar informações específicas de todos os institutos cadastrados
+            const snapInst = await db_info.collection('Institutos').get();
+            snapInst.forEach(doc => {
+                const data = doc.data();
+                if (data.info_especifica) {
+                    renderizarInfoCard(feedContainer, {
+                        texto: data.info_especifica,
+                        imageUrl: data.img,
+                        autor_nome: data.info_autor_nome || data.nome,
+                        ultimaAtualizacao: data.ultimaAtualizacaoInfo
+                    }, `🏛️ Atualização: ${data.nome}`);
+                }
+            });
+
+        } catch (e) {
+            console.error('Erro carregar Página Info:', e);
+            document.getElementById('pageInfoText').innerText = 'Erro ao carregar a informação da página.';
+        }
+    }
+
+    // renderizarInfoCard: cria um card visual para cada item de informação, incluindo autor e data.
+    function renderizarInfoCard(container, data, titulo) {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.marginTop = "20px";
+        
+        const imgHtml = data.imageUrl ? `<img src="${data.imageUrl}" onerror="this.style.display='none'" style="width:100%; max-height:140px; object-fit:contain; border-radius:12px; margin-bottom:15px; background: #f8f9fa;">` : '';
+        const dataStr = data.ultimaAtualizacao ? (data.ultimaAtualizacao.seconds ? new Date(data.ultimaAtualizacao.seconds * 1000).toLocaleDateString() : new Date(data.ultimaAtualizacao).toLocaleDateString()) : '';
+        const autorHtml = `<p style="font-size:0.85rem; color:#888; margin-top:15px; font-style:italic; border-top:1px solid #ddd; padding-top:10px;">✏️ Publicado por <strong>${data.autor_nome || 'Admin'}</strong> ${dataStr ? ' em ' + dataStr : ''}</p>`;
+
+        // Se o texto não começar com uma tag HTML, aplicamos o replace de quebra de linha para compatibilidade com posts antigos
+        const conteudoFinal = data.texto.includes('<') ? data.texto : data.texto.replace(/\n/g, '<br>');
+
+        card.innerHTML = `
+            <h2>${titulo}</h2>
+            ${imgHtml}
+            <div style="text-align: left;">${conteudoFinal}</div>
+            ${autorHtml}
+        `;
+        container.appendChild(card);
+    }
+
+    // carregarHeaderDoFirestore: busca e renderiza os textos do header
+    async function carregarHeaderDoFirestore() {
+        try {
+            const doc = await db_info.collection('ConfiguracaoHeader').doc('principal').get();
+            if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('headerTag').innerText = data.tag || 'PORTAL DO CANDIDATO 2026';
+                document.getElementById('headerH1').innerText = data.titulo || 'Ensino Médio em Angola';
+                document.getElementById('headerP').innerText = data.descricao || 'Guia Completo para o Ano Letivo 2026/2027';
+            }
+        } catch (e) {
+            console.error('Erro ao carregar header:', e);
+        }
+    }
+
+    // abrirModalEditarHeader: abre o modal de edição do header
+    function abrirModalEditarHeader() {
+        document.getElementById('inputHeaderTag').value = document.getElementById('headerTag').innerText;
+        document.getElementById('inputHeaderH1').value = document.getElementById('headerH1').innerText;
+        document.getElementById('inputHeaderP').value = document.getElementById('headerP').innerText;
+        document.getElementById('modalEditarHeader').style.display = 'flex';
+    }
+
+    // fecharModalEditarHeader: fecha o modal de edição do header
+    function fecharModalEditarHeader() {
+        document.getElementById('modalEditarHeader').style.display = 'none';
+    }
+
+    // salvarAlteracoesHeader: salva as alterações do header no Firestore
+    async function salvarAlteracoesHeader() {
+        const tag = document.getElementById('inputHeaderTag').value.trim();
+        const titulo = document.getElementById('inputHeaderH1').value.trim();
+        const descricao = document.getElementById('inputHeaderP').value.trim();
+
+        if (!tag || !titulo || !descricao) {
+            alert('Por favor, preenchaa todos os campos.');
+            return;
+        }
+
+        try {
+            await db_info.collection('ConfiguracaoHeader').doc('principal').set({
+                tag: tag,
+                titulo: titulo,
+                descricao: descricao,
+                ultimaAtualizacao: new Date()
+            });
+            
+            // Atualizar os elementos na página
+            document.getElementById('headerTag').innerText = tag;
+            document.getElementById('headerH1').innerText = titulo;
+            document.getElementById('headerP').innerText = descricao;
+            
+            fecharModalEditarHeader();
+            alert('✅ Header atualizado com sucesso!');
+        } catch (e) {
+            alert('Erro ao guardar alterações: ' + (e.message || e));
+        }
+    }
+
+    // carregarInfoInstituto: exibe o detalhe do instituto selecionado.
+    async function carregarInfoInstituto(institutoId) {
+        console.log('Carregando info do instituto:', institutoId);
+        const doc = await db_info.collection('Institutos').doc(institutoId).get();
+        console.log('Documento existe?', doc.exists);
+        if (!doc.exists) {
+            console.warn('Instituto não encontrado:', institutoId);
+            document.getElementById('institutoInfoViewCard').innerHTML = '<p>Instituto não encontrado.</p>';
+            return;
+        }
+
+        const data = doc.data();
+        console.log('Dados do instituto:', data);
+        document.getElementById('card-instituto-dinamico').style.display = '';
+        document.getElementById('view_inst_nome').innerText = data.nome || 'Sem nome';
+        document.getElementById('view_inst_mun').innerText = data.mun || '';
+        if (data.img) {
+            const imgEl = document.getElementById('view_inst_img');
+            imgEl.src = data.img;
+            imgEl.style.display = '';
+        } else {
+            document.getElementById('view_inst_img').style.display = 'none';
+        }
+        document.getElementById('view_inst_descricao').innerText = data.descricao || 'Descrição não disponível.';
+        document.getElementById('view_inst_cursos').innerText = data.cursos || 'Nenhum curso definido.';
+        document.getElementById('view_inst_info_especifica').innerText = data.info_especifica || 'Nenhuma informação adicional definida.';
+        document.getElementById('view_inst_belongs').innerText = `Nota: esta informação pertence ao instituto ${data.nome || 'desconhecido'}.`;
+        const authorEl = document.getElementById('view_inst_author');
+        if (data.info_autor_nome || data.ultimaAtualizacaoInfo) {
+            const autor = data.info_autor_nome ? ` por ${data.info_autor_nome}` : '';
+            const instante = data.ultimaAtualizacaoInfo ? ` em ${new Date(data.ultimaAtualizacaoInfo.seconds ? data.ultimaAtualizacaoInfo.toDate() : data.ultimaAtualizacaoInfo).toLocaleDateString()}` : '';
+            authorEl.innerText = `Última atualização${autor}${instante}.`;
+            console.log('Autor:', data.info_autor_nome, 'Data:', instante);
+        } else {
+            authorEl.innerText = '';
+        }
+        document.getElementById('view_inst_site').href = data.site || '#';
+        document.getElementById('view_inst_site').style.display = data.site ? '' : 'none';
+
+        const adminCtx = MultiAdminAuth.getAdminContext();
+        const deleteBtn = document.getElementById('institutoInfoDeleteBtn');
+        if (adminCtx && adminCtx.valid) {
+            const infoTextarea = document.getElementById('institutoInfoTextarea');
+            infoTextarea.value = data.info_especifica || '';
+            if (adminCtx.isMaster || adminCtx.admin_id === data.info_autor_id) {
+                deleteBtn.style.display = '';
+            } else {
+                deleteBtn.style.display = 'none';
+            }
+        } else {
+            deleteBtn.style.display = 'none';
+        }
+    }
+
+    // carregarInstitutosParaEdicao: popula o dropdown de edição de instituto para admins.
+    async function carregarInstitutosParaEdicao() {
+        const select = document.getElementById('institutoSelect');
+        select.innerHTML = '<option value="" disabled selected>-- Selecione um instituto --</option>';
+        const snap = await db_info.collection('Institutos').orderBy('nome').get();
+        snap.forEach(doc => {
+            const data = doc.data();
+            const option = document.createElement('option');
+            option.value = doc.id;
+            option.textContent = data.nome || doc.id;
+            select.appendChild(option);
+        });
+    }
+
+    function onInstitutoChange() {
+        const institutoId = document.getElementById('institutoSelect').value;
+        if (institutoId) {
+            carregarInfoInstituto(institutoId);
+        }
+    }
+
+    // carregarInstitutosParaPublico: preenche a lista pública de institutos disponíveis para consulta.
+    async function carregarInstitutosParaPublico() {
+        const select = document.getElementById('institutoSelectPublic');
+        select.innerHTML = '<option value="" disabled selected>-- Escolha um instituto --</option>';
+        try {
+            console.log('Carregando institutos...');
+            const snap = await db_info.collection('Institutos').orderBy('nome').get();
+            console.log('Institutos encontrados:', snap.size);
+            snap.forEach(doc => {
+                const data = doc.data();
+                console.log('Instituto:', doc.id, data.nome);
+                const option = document.createElement('option');
+                option.value = doc.id;
+                option.textContent = data.nome || doc.id;
+                select.appendChild(option);
+            });
+        } catch (e) {
+            console.error('Erro ao carregar institutos públicos:', e);
+            select.innerHTML += '<option disabled>Erro ao carregar institutos</option>';
+        }
+    }
+
+    function onInstitutoChangePublic() {
+        const institutoId = document.getElementById('institutoSelectPublic').value;
+        console.log('Instituto selecionado:', institutoId);
+        if (institutoId) {
+            localStorage.setItem('instituto_id', institutoId);
+            carregarInfoInstituto(institutoId);
+        }
+    }
+
+    // salvarInfoInstituto: grava a informação do instituto atual no Firestore.
+    async function salvarInfoInstituto() {
+        const adminCtx = MultiAdminAuth.getAdminContext();
+        if (!adminCtx || !adminCtx.valid) {
+            return alert('Apenas administradores de instituto podem guardar informações aqui.');
+        }
+
+        const institutoId = adminCtx.isMaster ? document.getElementById('institutoSelect').value : adminCtx.instituto_id;
+        if (!institutoId) {
+            return alert('Nenhum instituto selecionado para guardar a informação.');
+        }
+
+        const infoTexto = document.getElementById('institutoInfoTextarea').value.trim();
+        if (!infoTexto) {
+            return alert('Por favor, escreva a informação do instituto antes de guardar.');
+        }
+
+        try {
+            await db_info.collection('Institutos').doc(institutoId).set({
+                info_especifica: infoTexto,
+                ultimaAtualizacaoInfo: new Date(),
+                info_autor_id: adminCtx.admin_id,
+                info_autor_nome: adminCtx.nome_admin
+            }, { merge: true });
+            await carregarInfoInstituto(institutoId);
+            alert('Informação do instituto guardada com sucesso.');
+        } catch (e) {
+            alert('Erro ao guardar informação do instituto: ' + (e.message || e));
+        }
+    }
+
+    // apagarInfoInstituto: exclui a informação do instituto, se o usuário for autorizado.
+    async function apagarInfoInstituto() {
+        const adminCtx = MultiAdminAuth.getAdminContext();
+        if (!adminCtx || !adminCtx.valid) {
+            return alert('Apenas administradores válidos podem apagar informações.');
+        }
+
+        const institutoId = adminCtx.isMaster ? document.getElementById('institutoSelect').value : adminCtx.instituto_id;
+        if (!institutoId) {
+            return alert('Nenhum instituto selecionado para apagar a informação.');
+        }
+
+        const doc = await db_info.collection('Institutos').doc(institutoId).get();
+        const existing = doc.exists ? doc.data() : {};
+        if (!adminCtx.isMaster && adminCtx.admin_id !== existing.info_autor_id) {
+            return alert('Apenas o administrador Master ou o administrador que inseriu esta informação podem apagá-la.');
+        }
+
+        if (!confirm('Tem certeza de que deseja apagar a informação do instituto?')) {
+            return;
+        }
+
+        try {
+            await db_info.collection('Institutos').doc(institutoId).update({
+                info_especifica: firebase.firestore.FieldValue.delete(),
+                info_autor_id: firebase.firestore.FieldValue.delete(),
+                info_autor_nome: firebase.firestore.FieldValue.delete(),
+                ultimaAtualizacaoInfo: firebase.firestore.FieldValue.delete()
+            });
+            await carregarInfoInstituto(institutoId);
+            alert('Informação do instituto apagada com sucesso.');
+        } catch (e) {
+            alert('Erro ao apagar informação do instituto: ' + (e.message || e));
+        }
+    }
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<script src="js/adminAuth.js"></script>
+<script>
+    const firebaseConfig_info = {
+        apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+        authDomain: "j-direcionamento.firebaseapp.com",
+        projectId: "j-direcionamento",
+        storageBucket: "j-direcionamento.appspot.com",
+        messagingSenderId: "288532637574",
+        appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig_info);
+    const db_info = firebase.firestore();
+</script>
+</body>
+</html>

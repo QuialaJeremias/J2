@@ -1,0 +1,77 @@
+form{
+    margin-top: 30px;
+    text-align: center;
+    
+  }
+
+  form input{
+    margin-bottom: 10px;
+  }
+  
+  body{
+
+background: linear-gradient(180deg,#0a2342,#051326);
+font-family: Arial;
+color:white;
+
+}
+
+h1{
+
+font-weight:bold;
+
+}
+
+/* CARD INSTITUTO */
+
+.instituto-card{
+
+border-radius:15px;
+overflow:hidden;
+transition:0.3s;
+box-shadow:0 10px 20px rgba(0,0,0,0.4);
+
+}
+
+.instituto-card:hover{
+
+transform:scale(1.05);
+
+}
+
+.instituto-card img{
+
+height:200px;
+object-fit:cover;
+
+}
+
+.card-body{
+
+background:white;
+color:black;
+text-align:center;
+
+}
+
+/* BOTÃO VOLTAR */
+
+.btn-voltar{
+
+position:fixed;
+bottom:20px;
+left:20px;
+background:white;
+color:black;
+padding:10px 20px;
+border-radius:20px;
+text-decoration:none;
+font-weight:bold;
+
+}
+
+.btn-voltar:hover{
+
+background:#ddd;
+
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orientação Vocacional - Pergunta 1</title>
+    <style>
+        /* Mantenho o teu CSS original que já está muito bom */
+        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+        body{ background: linear-gradient(135deg,#0a4da2,#3a7bd5,#f5b932); background-size:300% 300%; animation: gradientMove 10s ease infinite; padding:20px; color:#333; min-height:100vh; }
+        @keyframes gradientMove{ 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
+        .container{ max-width:450px; margin:0 auto; background:white; padding:25px; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,0.15); }
+        .header{ display:flex; align-items:center; gap:10px; color:#888; margin-bottom:25px; cursor:pointer; }
+        .progress-container{ margin-bottom:30px; }
+        .progress-text{ display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:8px; color:#666; }
+        .progress-bar{ width:100%; height:6px; background:#e0e6ed; border-radius:10px; overflow:hidden; }
+        .progress-fill{ width:17%; height:100%; background: linear-gradient(90deg,#0a4da2,#f5b932); }
+        .section-tag{ color:#888; font-size:0.9rem; display:flex; align-items:center; gap:5px; margin-bottom:10px; }
+        h1{ font-size:1.6rem; line-height:1.3; margin-bottom:30px; color:#051326; }
+        /* Alterar a lista para uma grelha (Grid) */
+.options-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Cria as duas colunas */
+    gap: 15px; /* Espaço entre os cartões */
+    margin-bottom: 30px;
+}
+
+/* Ajustes nos cartões para ficarem bonitos em grelha */
+.option-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 15px; /* Bordas suaves */
+    display: flex;
+    flex-direction: column; /* Ícone em cima do texto */
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.85rem; /* Ajuste para caber melhor */
+    min-height: 120px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.option-card:hover {
+    border-color: #0a4da2;
+    background-color: #f0f7ff;
+    transform: translateY(-3px); /* Pequeno efeito de levitação */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+.option-card.selected {
+    border: 2px solid #0a4da2;
+    background-color: #f0f7ff;
+    color: #0a4da2;
+}
+
+.icon {
+    font-size: 1.8rem; /* Ícone maior para destaque */
+    margin-bottom: 8px;
+}
+
+/* Ajuste para ecrãs pequenos (telemóveis) */
+@media (max-width: 400px) {
+    .options-list {
+        grid-template-columns: 1fr; /* Volta a 1 coluna se for muito estreito */
+    }
+}
+        .icon{ font-size:1.2rem; }
+        .btn-next{ width:100%; padding:15px; border-radius:12px; border:none; background-color:#8da9c4; color:white; font-weight:bold; display:flex; justify-content:center; align-items:center; gap:10px; cursor:not-allowed; transition: 0.3s; }
+        .btn-next.active{ background-color:#0a4da2; cursor:pointer; }
+        .bg-icons{ position:fixed; bottom:20px; right:20px; font-size:28px; opacity:0.12; }
+        .link-clean { color: #888888; text-decoration: none; font-size: 0.9rem; }
+        .btn-voltar {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 10000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: #06126e00;
+            border: 2px solid #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover { 
+            background: #040e69; 
+            color: #ffffff; 
+            transform: scale(1.05); 
+            border: 2px solid #ffffff00;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">   
+         <a href="h2.html" class="btn-voltar"> ← Voltar ao início</a>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-text">
+            <span>Pergunta 1 de 6</span>
+            <span>17%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="section-tag">💡 Interesses Principais</div>
+    <h1>Se tivesse de escolher um projeto hoje, o que faria?</h1>
+
+    <div class="options-list" id="optionsList">
+        <div class="option-card" data-value="tech_gestao">
+            <span class="icon">💻</span> Desenvolver um sistema digital ou gerir processos de uma empresa
+        </div>
+        
+        <div class="option-card" data-value="saude_quimica">
+            <span class="icon">🔬</span> Realizar análises laboratoriais ou prestar cuidados de saúde
+        </div>
+
+        <div class="option-card" data-value="industrial_eletro">
+            <span class="icon">⚙️</span> Projetar máquinas, motores ou sistemas de energia industrial
+        </div>
+
+        <div class="option-card" data-value="construcao_industrial">
+            <span class="icon">🏗️</span> Planear a construção de edifícios ou estruturas metálicas
+        </div>
+   
+<div class="option-card" data-value="agronomia_ambiente">
+    <span class="icon">🌱</span> Trabalhar com agricultura, cuidar de animais ou preservar o meio ambiente
+</div>
+
+<div class="option-card" data-value="pedagogia_ensino">
+    <span class="icon">👨‍🏫</span> Ensinar crianças, organizar atividades educativas ou gerir uma escola
+</div>
+     </div><div class="actions">
+        <button type="button" class="btn-next" id="nextBtn">
+            Próximo →
+        </button>
+    </div>
+</div>
+
+<div class="bg-icons">🎓 📚 💡 🧠 💻 🌱 ⚙️</div>
+
+<script>
+    /*
+        h3.html
+        ------
+        Pergunta 1 do fluxo de orientação. O utilizador escolhe o tipo de projeto que
+        mais o motiva e isto define as áreas recomendadas para a próxima etapa.
+    */
+    const cards = document.querySelectorAll('.option-card');
+    const nextBtn = document.getElementById('nextBtn');
+    let escolhaTemporaria = null;
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            escolhaTemporaria = card.dataset.value;
+            nextBtn.classList.add('active');
+            nextBtn.style.opacity = '1';
+            nextBtn.style.cursor = 'pointer';
+        });
+    });
+
+   nextBtn.addEventListener('click', () => {
+    if(escolhaTemporaria) {
+        let respostas = [];
+        
+        // Lógica de Interseção: Mapeamento das novas áreas
+        if(escolhaTemporaria === "tech_gestao") {
+            respostas.push("tech", "gestao");
+        } 
+        else if(escolhaTemporaria === "saude_quimica") {
+            respostas.push("saude", "quimica");
+        }
+        else if(escolhaTemporaria === "industrial_eletro") {
+            respostas.push("industrial", "eletro");
+        }
+        else if(escolhaTemporaria === "construcao_industrial") {
+            respostas.push("construcao", "industrial");
+        }
+        // Novas Áreas adicionadas aqui:
+        else if(escolhaTemporaria === "agronomia_ambiente") {
+            respostas.push("agronomia");
+        }
+        else if(escolhaTemporaria === "pedagogia_ensino") {
+            respostas.push("pedagogia");
+        }
+
+        localStorage.setItem("respostas", JSON.stringify(respostas));
+        window.location.href = "h4.html";
+    } else {
+        alert("Por favor, selecione a opção que mais lhe atrai!");
+    }
+});
+</script>
+</body>
+</html>

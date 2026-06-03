@@ -1,0 +1,73 @@
+<main class="container mt-5">
+
+<h1>Resultado da Orientação</h1>
+
+<h2>{{nome}}, o curso recomendado é:</h2>
+
+<h1>{{curso}}</h1>
+
+<h2>Institutos disponíveis</h2>
+
+<div class="grid">
+
+{{#each institutos}}
+
+<div class="card">
+
+<img src="/img/{{img}}">
+
+<h3>{{nome}}</h3>
+
+<p>{{curso}}</p>
+
+</div>
+
+{{/each}}
+{{#each curso}}
+
+<div class="resultado-card">
+    <div class="course-name">{{nome}}</div>
+   
+</div>
+
+
+{{/each}}
+
+</div>
+<button onclick="history.back()" class="btn-voltar">Voltar</button>
+
+</main>
+<h1>Resultado da Orientação</h1>
+
+<h2>{{nome}}, o curso recomendado é:</h2>
+
+<h1>{{curso}}</h1>
+
+<h2>Institutos disponíveis</h2>
+
+<div class="grid">
+
+{{#each institutos}}
+
+<div class="card">
+
+<img src="/img/{{img}}">
+
+<h3>{{nome}}</h3>
+
+<p>{{curso}}</p>
+
+</div>
+
+{{/each}}
+{{#each curso}}
+
+<div class="resultado-card">
+    <div class="course-name">{{nome}}</div>
+   
+</div>
+
+
+{{/each}}
+
+</div>

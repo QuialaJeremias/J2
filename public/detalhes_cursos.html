@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Curso - UniDirecionamento</title>
+    <style>
+        /* Reset e Estilos Globais */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top, #0d2b4f 0%, #051326 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            color: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 { text-align: center; margin-bottom: 10px; font-size: 2.2rem; }
+        .subtitle { text-align: center; color: #a0aec0; margin-bottom: 40px; font-size: 1rem; }
+
+        /* Grid de Cursos */
+        #lista-detalhes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .detail-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            border-left: 4px solid #f5b932;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .detail-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .course-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f5b932;
+            margin-bottom: 12px;
+            min-height: 3rem;
+        }
+
+        .description {
+            font-size: 0.9rem;
+            color: #cbd5e0;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .institute-info {
+            font-size: 0.75rem;
+            background: rgba(10, 77, 162, 0.4);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #63b3ed;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-go {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(90deg, #1a73e8, #0a4da2);
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        /* Overlay e Modal */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+        }
+
+        #modal-institutos {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            color: #333;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        #modal-institutos h2 { color: #0a4da2; margin-bottom: 15px; font-size: 1.4rem; }
+        
+        .user-info-bar { 
+            background: #f0f7ff; padding: 10px; border-radius: 10px; 
+            margin-bottom: 20px; font-size: 0.9rem; color: #555;
+            border-left: 4px solid #f5b932;
+        }
+
+        .inst-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; border-bottom: 1px solid #eee;
+            cursor: pointer; transition: 0.2s;
+        }
+        .inst-item:hover { background: #f0f7ff; }
+        .inst-item.priority { background: #fffcf0; border-radius: 8px; }
+        
+        .distancia-tag { background: #f5b932; color: #000; font-size: 0.7rem; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
+        
+        /* Estilo do Formulário do Adulto */
+        .form-validacao {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            border: 1px dashed #cbd5e0;
+        }
+        .form-validacao label { display: block; font-size: 0.75rem; font-weight: bold; color: #4a5568; margin-bottom: 5px; }
+        .form-validacao input { 
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #e2e8f0; 
+            border-radius: 8px; font-size: 0.9rem; outline: none;
+        }
+        .btn-validar {
+            width: 100%; background: #2f855a; color: white; border: none; padding: 14px; 
+            border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
+
+        .btn-fechar { 
+            width: 100%; margin-top: 20px; padding: 12px; 
+            background: #e2e8f0; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(15px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .back-link {
+            display: block; text-align: center; margin-top: 30px; color: #a0aec0; text-decoration: none;
+        }
+        .back-link:hover { color: #f5b932; }
+
+       
+
+        .rupe-box {
+            background: #f1f5f9; 
+            border: 2px dashed #0a4da2; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin: 20px 0;
+        }
+
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 11000;
+            justify-content: center; align-items: center;
+        }
+
+        .confirm-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            color: #333;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .confirm-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-voltar {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 10000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: #06126e00;
+            border: 2px solid #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #040e69; 
+            color: #ffffff; 
+            transform: scale(1.05); 
+            border: 2px solid #ffffff00;
+        }
+
+        @media print {
+    /* Esconde botões ou elementos que não devem aparecer no PDF */
+    button, .btn-go, .btn-validar {
+        display: none !important;
+    }
+
+    /* Centraliza o modal ou conteúdo principal */
+    #modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        max-width: 600px; /* Ajusta conforme necessário */
+        padding: 20px;
+    }
+
+    /* Garante que o corpo da página não tenha margens cortantes */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+}
+    </style>
+</head>
+<body>
+<div class="header"><a href="javascript:history.back()" class="btn-voltar">← Voltar para aréas</a></div>
+<div id="overlay"></div>
+<div id="modal-institutos">
+    <div id="modal-content"></div>
+    <button class="btn-fechar" id="btn-fechar-modal" onclick="fecharModalSemSalvar()">Cancelar</button>
+</div>
+
+<div class="container">
+    <h1>Explora as <span style="color:#f5b932;">Tuas Opções</span></h1>
+    <p class="subtitle">Descobre o curso que mais combina contigo em Luanda:</p>
+    <div id="lista-detalhes"></div>
+    <a href="h9.html" class="back-link">← Voltar às áreas</a>
+</div>
+
+<div id="confirmExit" class="confirm-overlay">
+    <div class="confirm-box">
+        <h3 style="color: #0a4da2; margin-bottom: 10px;">Deseja sair agora?</h3>
+        <p style="font-size: 0.9rem; color: #666;">Certifique-se de que anotou ou imprimiu o seu RUPE. Após sair, não poderá voltar a esta tela.</p>
+        <div class="confirm-btns">
+            <button class="btn-fechar" style="margin:0; flex:1;" onclick="fecharConfirmacao()">CANCELAR</button>
+            <button class="btn-validar" style="margin:0; flex:1; background: #e53e3e;" onclick="finalizarTudo()">FINALIZAR</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+    /*
+        detalhes_cursos.html
+        ---------------------
+        Página pública que lista detalhes de cursos e permite ao candidato
+        escolher uma instituição. Contém validação de BI, seleção de instituto
+        e geração de RUPE no Firestore.
+    */
+    // 1. CONFIGURAÇÃO DO FIREBASE
+    const firebaseConfig = {
+        apiKey: "AIzaSyA8230FDOPHlxSrTaGzB1KFruiaoKmFOq0",
+        authDomain: "j-direcionamento.firebaseapp.com",
+        projectId: "j-direcionamento",
+        storageBucket: "j-direcionamento.appspot.com",
+        messagingSenderId: "288532637574",
+        appId: "1:288532637574:web:5a08a03c426204ed7b6e07"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const baseCursos = {
+
+        construcao: [
+        { nome: "Técnico de Obras de Construção Civil", desc: "Aprende a ler plantas, gerir equipas no estaleiro e garantir que edifícios e estradas sejam construídos com segurança e precisão.", inst: "IPIL / IP Cacuaco" },
+        { nome: "Técnico de Desenhador Projectista", desc: "Transforma ideias em realidade digital, criando maquetes 3D e plantas detalhadas que servem de guia para grandes obras arquitetónicas.", inst: "IPIL / Alda Lara" }
+    ],
+    
+    agronomia: [
+    { 
+        nome: "Técnico de Produção Vegetal", 
+        desc: "Domina a terra e as sementes. Aprende a produzir alimentos em larga escala, desde a preparação do solo até à colheita sustentável.", 
+       
+    },
+    { 
+        nome: "Gestão Agrícola", 
+        desc: "Transforma a fazenda num negócio de sucesso, planeando investimentos, logística e garantindo a rentabilidade do agronegócio.", 
+       
+    },
+    { 
+        nome: "Pecuária", 
+        desc: "Torna-te um especialista no cuidado e produção animal, garantindo a saúde, nutrição e reprodução ética do gado.", 
+        
+    },
+    { 
+        nome: "Mecanização Agrícola", 
+        desc: "Domina a força das máquinas no campo. Opera e repara tratores e sistemas modernos de irrigação para acelerar a produção.", 
+       
+    }
+],
+
+    eletro: [
+        { nome: "Técnico de Electrónica Industrial e Automação", desc: "Dá vida às máquinas! Aprende a programar robôs e sistemas inteligentes que controlam as grandes fábricas modernas.", inst: "IPIL / ITEL" },
+        { nome: "Técnico de Energias e Instalações Eléctricas", desc: "Garante que a energia chegue a todo o lado. Aprende a montar e reparar redes elétricas de alta potência em casas e indústrias.", inst: "IPIL / IP Viana / ITPP / EFTSL" },
+        { nome: "Técnico de Energias Renováveis", desc: "Trabalha com o futuro. Aprende a captar a energia do sol e do vento para criar um mundo mais limpo e sustentável.", inst: "IPIL / IP Viana" },
+        { nome: "Técnico de Electrónica e Telecomunicações", desc: "Mantém o mundo conectado. Domina a fibra ótica, redes de internet e sistemas de comunicação via satélite.", inst: "ITEL / IPIKK" },
+        { nome: "Electricidade de Baixa Tensão", desc: "Especializa-te na infraestrutura das nossas casas e escritórios, instalando sistemas de iluminação e segurança inteligentes.", inst: "IP Viana / ITPP" }
+    ],
+   
+    industrial: [
+        { nome: "Técnico de Electromecânica", desc: "O mestre dos dois mundos. Aprende a reparar motores potentes e sistemas que misturam mecânica pura com eletricidade.", inst: "IPIL / IPIKK" },
+        { nome: "Técnico de Instrumentação", desc: "O cérebro da precisão. Aprende a controlar sensores e instrumentos digitais que monitorizam a pressão e temperatura em refinarias.", inst: "IPIL" },
+        { nome: "Técnico de Frio e Climatização", desc: "Domina as temperaturas. Aprende a projetar e reparar grandes sistemas de ar condicionado e conservação de alimentos em larga escala.", inst: "IP Cacuaco / IPIL" },
+        { nome: "Técnico de Máquinas e Motores", desc: "Põe as mãos na massa com motores gigantes! Especializa-te na manutenção de transmissões e sistemas hidráulicos de grande porte.", inst: "IPIL" },
+        { nome: "Técnico de Produção de Mecatrónica", desc: "Cria o amanhã. Opera braços robóticos e máquinas CNC de alta precisão para fabricar peças complexas.", inst: "IPIL / IPIKK" },
+        { nome: "Técnico de Mecatrónica Automóvel", desc: "O 'médico' dos carros modernos. Aprende a usar computadores para detetar problemas eletrónicos em motores e sistemas híbridos.", inst: "IPIL" },
+        { nome: "Mecânica Auto", desc: "Torna-te um perito em velocidade e segurança, dominando travões, suspensões e a mecânica fundamental dos veículos.", inst: "IPIL" },
+        { 
+            nome: "Máquinas e Fluidos", 
+            desc: "Controla a força dos líquidos e gases. Aprende a gerir sistemas de bombagem e transporte de fluidos industriais.", 
+            inst: "IPIL" 
+        }
+    ],
+    quimica: [
+        { nome: "Técnico de Ambiente e Controlo de Qualidade", desc: "O guardião da qualidade. Garante que os produtos industriais sejam seguros e que as fábricas não poluam o nosso ar e água.", inst: "IPIL" },
+        { nome: "Técnico de Bioquímica", desc: "Explora a vida ao microscópio. Cria soluções biológicas para medicamentos e produção de alimentos saudáveis.", inst: "IPIL" },
+        { nome: "Técnico de Química Industrial", desc: "Transforma matérias-primas em produtos úteis. Aprende a operar reatores químicos e a fabricar detergentes, tintas e muito mais.", inst: "IPIL" },
+        { nome: "Técnico de Petroquímica", desc: "Trabalha no setor mais forte de Angola. Aprende a refinar o petróleo e a transformá-lo em combustíveis e plásticos essenciais.", inst: "IPIL" },
+        { nome: "Técnico de Técnicas de Laboratório", desc: "Domina o rigor científico. Aprende a realizar análises precisas que ajudam médicos a diagnosticar doenças ou cientistas a inovar.", inst: "IPIL" }
+    ],
+        tech: [
+            { nome: "Técnico de Informática", desc: "A chave para o world digital. Aprende a criar softwares, gerir bases de dados e resolver qualquer problema de hardware ou redes.", inst: "IPIL / ITEL / IP Viana / IP Cacuaco / Alda Lara / ITPP / IPIKK" },
+            { nome: "Sistemas e Multimédia", desc: "Onde a arte encontra o código. Cria experiências visuais incríveis, edita vídeos profissionais e desenvolve sites modernos.", inst: "ITEL" },
+            { nome: "Informática de Gestão", desc: "Otimiza os negócios. Usa a tecnologia para organizar finanças, gerir stocks e tornar as empresas mais eficientes.", inst: "IMEL / IPIL " }
+        ],
+
+        gestao: [ 
+        { nome: "Técnico de Administração Pública", desc: "Serve o cidadão com eficiência. Aprende a gerir documentos, organizar o estado e garantir que as instituições funcionem bem.", inst: "IMEL" },
+        { nome: "Técnico de Comércio", desc: "Domina o mercado. Aprende estratégias de marketing, negociação com fornecedores e como gerir uma loja de sucesso.", inst: "IMEL" },
+        { nome: "Técnico de Contabilidade", desc: "O dono dos números. Aprende a organizar as finanças das empresas, gerir orçamentos e garantir que os impostos estejam em dia.", inst: "IMEL" },
+        { nome: "Técnico de Finanças", desc: "Faz o dinheiro crescer. Especializa-te em investimentos, análise de risco e gestão estratégica de capital.", inst: "IMEL" },
+        { nome: "Técnico de Gestão Empresarial", desc: "Prepara-te para liderar. Aprende a gerir pessoas, criar planos de negócios e levar empresas ao topo.", inst: "IMEL" },
+        { nome: "Técnico de Planeamento e Gestão dos Transportes", desc: "Move o mundo. Aprende a gerir frotas de camiões, barcos ou aviões, garantindo que as mercadorias cheguem ao destino no tempo certo.", inst: "IMEL" },
+        { nome: "Técnico de Comunicação Social", desc: "Dá voz às histórias. Aprende a criar notícias, gerir redes sociais e fazer assessoria de imprensa profissional.", inst: "IMEL" },
+        ],
+
+        saude: [
+    { 
+        nome: "Análises Clínicas", 
+        desc: "Investiga o que os olhos não veem. Realiza exames de sangue e tecidos para ajudar a descobrir doenças e salvar vidas.", 
+        inst: "IMS Cazenga / EFTSL" 
+    },
+    { 
+        nome: "Enfermagem", 
+        desc: "A alma do hospital. Aprende a cuidar de pacientes com humanidade, administrar medicação e agir em situações de emergência.", 
+        inst: "IMS Cazenga / EFTSL" 
+    },
+    { 
+        nome: "Estomatologia (Odontologia)", 
+        desc: "Cuida do sorriso de Angola. Especializa-te em tratamentos dentários, prevenção de cáries e pequenas cirurgias orais.", 
+        inst: "IMS Cazenga / EFTSL" 
+    },
+    { 
+        nome: "Farmácia", 
+        desc: "O perito em medicamentos. Aprende a manipular fórmulas, aconselhar dosagens e gerir o stock de farmácias e hospitais.", 
+        inst: "IMS Cazenga / EFTSL" 
+    },
+    { 
+        nome: "Fisioterapia", 
+        desc: "Recupera movimentos e esperança. Usa terapias físicas para tratar lesões e ajudar pessoas a voltarem a andar e a viver sem dor.", 
+        inst: "IMS Cazenga / EFTSL" 
+    },
+
+{ 
+    nome: "Técnico de Laboratório", 
+    inst: "IMS Cazenga / EFTSL" 
+}
+],
+  pedagogia: [
+    { 
+        nome: "Educação Primária", 
+        desc: "Formação integral para lecionar da 1ª à 6ª classe, focada em psicopedagogia e metodologias de ensino.", 
+        desc: "Constrói o futuro desde a base. Aprende a ensinar crianças a ler, escrever e a descobrir o mundo com as melhores técnicas pedagógicas.", 
+        inst: "Magistério Mutu-ya-Kevela" 
+    },
+    { 
+        nome: "Língua Portuguesa", 
+        desc: "Domina a nossa língua. Aprende a ensinar a gramática e a literatura de forma inspiradora para os alunos do I ciclo.", 
+        inst: "Magistério Mutu-ya-Kevela" 
+    },
+    { 
+        nome: "Matemática / Física", 
+        desc: "Descodifica o universo. Torna-te um professor capaz de simplificar os números e as leis da física para os jovens estudantes.", 
+        inst: "Magistério Mutu-ya-Kevela" 
+    },
+    { 
+        nome: "História / Geografia", 
+        desc: "Ensina as origens e o mundo. Explora os grandes factos históricos e a organização do nosso planeta com os teus alunos.", 
+        inst: "Magistério Mutu-ya-Kevela" 
+    },
+    
+    { 
+        nome: "Matemática", 
+        desc: "Lógica em estado puro. Especializa-te no ensino avançado de cálculo e álgebra para preparar os génios de amanhã.", 
+        inst: "IMNE Garcia Neto" 
+    },
+    { 
+        nome: "Física", 
+        desc: "Explora a energia e a matéria. Prepara aulas práticas e experimentais que mostram como o mundo funciona de verdade.", 
+        inst: "IMNE Garcia Neto" 
+    },
+   
+    {   nome: "Bioquímica", 
+        desc: "Ensina a química da vida. Prepara os alunos para entenderem as reações químicas que ocorrem nos seres vivos e no ambiente.", 
+        inst: "IMNE Garcia Neto / Magistério Mutu-ya-Kevela" 
+    },
+
+    { 
+        nome: "Francês", 
+        desc: "Abre portas internacionais. Ensina o francês para comunicação, cultura e diplomacia, expandindo os horizontes dos teus alunos.", 
+        inst: "IMNE Garcia Neto" 
+    },
+    { 
+        nome: "Inglês", 
+        desc: "Leciona a língua global. Prepara os jovens para o mercado de trabalho internacional através do domínio do inglês.", 
+        inst: "IMNE Garcia Neto" 
+    },
+ 
+    { 
+        nome: "Pedagogia", 
+        desc: "Torna-te um especialista no ato de ensinar. Aprende a gerir escolas e a entender como as pessoas aprendem melhor.", 
+        inst: "IMNE Garcia Neto" 
+    }
+]
+
+        // Adicionar outras áreas conforme necessário...
+    };
+
+    // 2. VARIÁVEL GLOBAL PARA ARMAZENAR DADOS DA NUVEM
+    let institutosDaNuvem = [];
+    const muniAlu = (localStorage.getItem('municipioUsuario') || "viana").toLowerCase().trim();
+
+    // window.onload: inicializa a página de cursos, carrega cursos e institutos.
+    window.onload = () => {
+        const area = localStorage.getItem('areaSelecionada');
+        const container = document.getElementById('lista-detalhes');
+        const cursos = baseCursos[area] || [];
+
+        if (cursos.length === 0) {
+            container.innerHTML = "<p style='text-align:center;'>Escolha uma área na tela anterior.</p>";
+            return;
+        }
+
+        // Carregar institutos do Firebase assim que a página abrir
+        db.collection("Institutos").get().then((querySnapshot) => {
+            institutosDaNuvem = [];
+            querySnapshot.forEach((doc) => {
+                institutosDaNuvem.push(doc.data());
+            });
+        });
+
+        cursos.forEach(c => {
+            container.innerHTML += `
+                <div class="detail-card">
+                    <div>
+                        <div class="course-title">${c.nome}</div>
+                        <div class="description">${c.desc}</div>
+                        <div class="institute-info">📍 ${c.inst}</div>
+                    </div>
+                    <button class="btn-go" onclick="abrirSelecaoEscola('${c.nome}', '${c.inst}')">Selecionar →</button>
+                </div>`;
+        });
+    };
+
+   // abrirSelecaoEscola: abre o modal com a lista de institutos que oferecem o curso.
+   function abrirSelecaoEscola(curso, instBase) {
+    const nomeAlu = localStorage.getItem('nomeUsuario') || "Estudante";
+    
+    // 1. FILTRAGEM DINÂMICA: Procura no Firebase quem oferece este curso
+    const cursoLimpo = curso.toLowerCase().replace("técnico de ", "").trim();
+    const areaAtu = localStorage.getItem('areaSelecionada');
+    
+    let instsFiltrados = institutosDaNuvem.filter(inst => {
+        const cursosDoInst = String(inst.cursos).toLowerCase();
+        const nomeInst = inst.nome.toLowerCase();
+
+        // Desconectar Agronomia de institutos genéricos: exige termo "agrário" ou curso específico na BD
+        if (areaAtu === 'agronomia') {
+            return cursosDoInst.includes(cursoLimpo) || nomeInst.includes('agrário') || nomeInst.includes('ima');
+        }
+
+        return cursosDoInst.includes(cursoLimpo) || (instBase !== "" && inst.nome.includes(instBase.split(" ")[0]));
+    });
+
+    // 2. ORDENAÇÃO POR PROXIMIDADE: Município igual ao do aluno primeiro
+    instsFiltrados.sort((a, b) => {
+        const aMatch = a.mun.toLowerCase().includes(muniAlu);
+        const bMatch = b.mun.toLowerCase().includes(muniAlu);
+        return (aMatch === bMatch) ? 0 : aMatch ? -1 : 1;
+    });
+
+
+    let html = `<h2>Onde desejas estudar?</h2>
+                <div class="user-info-bar">👤 <b>${nomeAlu}</b> | 📍 <b>${muniAlu}</b></div>`;
+
+    // 2. VERIFICAÇÃO: Se a lista estiver vazia
+    if (instsFiltrados.length === 0) {
+        html += `
+            <div style="text-align: center; padding: 40px 20px; color: #555;">
+                <div style="font-size: 3rem; margin-bottom: 15px;">📍</div>
+                <p style="font-weight: bold; line-height: 1.5;">
+                    Lamentamos, mas de momento <span style="color: #e53e3e;">Luanda não possui um instituto público</span> que lecione o curso de ${curso}.
+                </p>
+                <p style="font-size: 0.8rem; margin-top: 10px; color: #777;">
+                    Tente explorar cursos similares em áreas próximas.
+                </p>
+            </div>`;
+    } else {
+        // 3. Se houver institutos, listamos normalmente
+        instsFiltrados.forEach(i => {
+            const eProx = i.mun.toLowerCase().includes(muniAlu);
+            const nomeInst = i.nome;
+            html += `<div class="inst-item ${eProx ? 'priority' : ''}" onclick="abrirValidaçãoAdulto('${nomeAlu}', '${muniAlu}', '${curso}', '${nomeInst}')">
+                        <div><strong>${nomeInst}</strong><br><small>${i.mun}</small></div>
+                        ${eProx ? '<span class="distancia-tag">MAIS PRÓXIMO</span>' : '<span>Selecionar</span>'}
+                    </div>`;
+        });
+    }
+
+    document.getElementById('modal-content').innerHTML = html;
+    document.getElementById('overlay').style.display = 'block';
+    document.getElementById('modal-institutos').style.display = 'block';
+    document.getElementById('btn-fechar-modal').style.display = 'block';
+}
+
+    // ... (mantenha as configurações do Firebase e baseCursos como estão)
+
+// --- FUNÇÕES DE UTILIDADE E MÁSCARA ---
+
+// aplicarMascaraBI: formata automaticamente o BI do candidato no formato angolano.
+function aplicarMascaraBI(input) {
+    let v = input.value.toUpperCase().replace(/\s/g, "");
+    let formatado = "";
+    for (let i = 0; i < v.length; i++) {
+        if (i < 9) { // 0-8: Números
+            if (/[0-9]/.test(v[i])) formatado += v[i];
+        } else if (i >= 9 && i <= 10) { // 9-10: Letras
+            if (/[A-Z]/.test(v[i])) formatado += v[i];
+        } else if (i >= 11) { // 11-13: Números
+            if (/[0-9]/.test(v[i])) formatado += v[i];
+        }
+    }
+    input.value = formatado.slice(0, 14);
+}
+
+function biValido(bi) {
+    // Padrão Angolano: 9 números + 2 letras + 3 números
+    const regexBI = /^[0-9]{9}[A-Z]{2}[0-9]{3}$/;
+    return regexBI.test(bi);
+}
+
+// --- FUNÇÕES DE FLUXO ---
+
+function abrirValidaçãoAdulto(estudante, muni, curso, instituto) {
+    document.getElementById('btn-fechar-modal').style.display = 'none';
+    
+    document.getElementById('modal-content').innerHTML = `
+    <div style="text-align: left; position: relative;">
+            <!-- LINK VOLTAR DISCRETO -->
+            <a href="javascript:void(0)" onclick="abrirSelecaoEscola('${curso}', '${instituto}')" 
+               style="text-decoration: none; color: #718096; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; margin-bottom: 12px; width: fit-content; transition: 0.3s;"
+               onmouseover="this.style.color='#0a4da2'" onmouseout="this.style.color='#718096'">
+               <span style="font-size: 1.1rem;">‹</span> Voltar para institutos
+            </a>
+    
+        <h2 style="color: #0a4da2; border-bottom: 2px solid #f5b932; padding-bottom: 10px;">📄 Ficha de Inscrição Oficial</h2>
+        <p style="font-size:0.8rem; color:#666; margin: 10px 0;">Curso: <b>${curso}</b> | Instituição: <b>${instituto}</b></p>
+        
+        <div class="form-validacao" style="max-height: 450px; overflow-y: auto; text-align: left;">
+            <h4 style="color:#0a4da2; margin-bottom:10px;">Dados do Candidato</h4>
+            <label>Nº DO BILHETE (CANDIDATO):</label>
+            <input type="text" id="biCandidato" placeholder="000000000LA000" oninput="aplicarMascaraBI(this)" style="font-family: monospace;">
+            
+            <label>CONFIRMAR Nº DO BILHETE:</label>
+            <input type="text" id="confBiCandidato" placeholder="Repita o BI" oninput="aplicarMascaraBI(this)" style="font-family: monospace;">
+            
+            <hr style="margin:20px 0; opacity:0.2;">
+
+            <h4 style="color:#0a4da2; margin-bottom:10px;">Contatos para Feedback</h4>
+            <label>EMAIL VÁLIDO:</label>
+            <input type="email" id="userEmail" placeholder="exemplo@gmail.com">
+            <label>TELEFONE (ANGOLA):</label>
+            <input type="tel" id="userTel" maxlength="9" placeholder="9XXXXXXXX">
+            
+            <hr style="margin:20px 0; opacity:0.2;">
+            
+            <h4 style="color:#0a4da2; margin-bottom:10px;">Dados do Encarregado</h4>
+            <label>NOME DO ENCARREGADO:</label>
+            <input type="text" id="respNome" placeholder="Nome Completo">
+            <label>Nº DO BILHETE DO ENCARREGADO:</label>
+            <input type="text" id="respBI" placeholder="BI do Responsável" oninput="aplicarMascaraBI(this)" style="font-family: monospace;">
+            <label>DATA DE NASCIMENTO DO ENCARREGADO:</label>
+            <input type="date" id="dataNascResp">
+            
+            <div id="erroInscricao" style="color: #e53e3e; font-size: 0.8rem; margin-bottom: 10px; display:none; background: #fff5f5; padding: 10px; border-radius: 5px;"></div>
+            
+            <button class="btn-validar" style="background:#28a745;" onclick="validarERegistar('${estudante}', '${muni}', '${curso}', '${instituto}')">
+                FINALIZAR E GERAR RUPE
+            </button>
+        </div>
+    `;
+}
+
+// validarERegistar: faz validações completas do formulário do candidato e registra no Firebase.
+async function validarERegistar(estudante, muni, curso, inst) {
+    const biCand = document.getElementById('biCandidato').value.toUpperCase().trim();
+    const confBiCand = document.getElementById('confBiCandidato').value.toUpperCase().trim();
+    const respNome = document.getElementById('respNome').value.trim();
+    const respBI = document.getElementById('respBI').value.toUpperCase().trim();
+    const dataNasc = document.getElementById('dataNascResp').value;
+    let email = document.getElementById('userEmail').value.trim();
+    const tel = document.getElementById('userTel').value.trim();
+    const erroDiv = document.getElementById('erroInscricao');
+
+    const mostrarErro = (msg) => {
+        erroDiv.innerText = msg;
+        erroDiv.style.display = 'block';
+        erroDiv.scrollIntoView();
+    };
+
+    // 1. Validar campos vazios
+    if (!biCand || !respNome || !respBI || !dataNasc || !email || !tel) {
+        mostrarErro("⚠️ Por favor, preencha todos os campos obrigatórios.");
+        return;
+    }
+
+    // 2. Lógica de E-mail: Adicionar @gmail.com se o usuário não incluir um domínio
+    if (!email.includes('@')) {
+        email += "@gmail.com";
+    }
+    // Validação simples de formato de e-mail
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regexEmail.test(email)) {
+        mostrarErro("❌ O formato do e-mail não é válido.");
+        return;
+    }
+
+    // 3. Validação dos BIs (Candidato vs Encarregado)
+    const nomesIguais = (estudante.toLowerCase() === respNome.toLowerCase());
+    
+    if (nomesIguais) {
+        // Se o nome é o mesmo, o BI deve ser o mesmo
+        if (biCand !== respBI) {
+            mostrarErro("❌ Como o aluno é o próprio encarregado, os BIs devem ser idênticos.");
+            return;
+        }
+    } else {
+        // Se o nome é diferente, o BI NÃO PODE ser o mesmo
+        if (biCand === respBI) {
+            mostrarErro("❌ O BI do aluno não pode ser igual ao do encarregado se forem pessoas diferentes.");
+            return;
+        }
+    }
+
+    // 4. Validações de Formato e Regras Gerais
+    if (!biValido(biCand)) {
+        mostrarErro("❌ O BI do Candidato parece inválido (Ex: 000000000LA000).");
+        return;
+    }
+
+    if (biCand !== confBiCand) {
+        mostrarErro("❌ Os números do BI do candidato não coincidem.");
+        return;
+    }
+
+    if (tel.length < 9) {
+        mostrarErro("❌ O número de telefone deve ter 9 dígitos.");
+        return;
+    }
+
+    // 5. Validação de Idade (Encarregado > 18)
+    const nascimento = new Date(dataNasc);
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mesDif = hoje.getMonth() - nascimento.getMonth();
+    if (mesDif < 0 || (mesDif === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+
+    if (idade < 18) {
+        mostrarErro("❌ O Encarregado de Educação deve ter pelo menos 18 anos.");
+        return;
+    }
+
+    // 6. Processamento no Firebase
+    try {
+        const numRupe = Math.floor(Math.random() * 900000000000 + 100000000000); 
+        
+        await db.collection("InscricoesOficiais").add({
+            candidato: estudante,
+            bi_candidato: biCand,
+            curso: curso,
+            instituto: inst,
+            municipio_aluno: muni,
+            email_contato: email,
+            telefone_contato: tel,
+            encarregado: respNome,
+            bi_encarregado: respBI,
+            rupe: numRupe,
+            status_pagamento: "Pendente",
+            data: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        exibirRUPE(numRupe, estudante, curso);
+    } catch (e) {
+        alert("Erro na conexão. Verifique a sua internet.");
+        console.error(e);
+    }
+} // Localiza a função exibirRUPE no teu código e altera esta parte:
+
+// exibirRUPE: mostra o recibo único de pagamento ao final da inscrição.
+function exibirRUPE(rupe, nome, curso) {
+    document.getElementById('modal-content').innerHTML = `
+        <div id="print-area" style="text-align: center; padding: 40px; margin: auto; max-width: 500px; border: 1px solid #ccc; border-radius: 10px;">
+            <h2 style="color: #2f855a;">✅ Inscrição Pré-Submetida!</h2>
+            <p style="margin: 15px 0; color: #4a5568;">Olá <b>${nome}</b>, o seu RUPE foi gerado com sucesso.</p>
+            
+            <div class="rupe-box" style="background: #f7fafc; padding: 20px; border-radius: 8px;">
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 5px;">REFERÊNCIA ÚNICA DE PAGAMENTO AO ESTADO (RUPE)</p>
+                <h1 style="color: #0a4da2; letter-spacing: 3px; font-size: 1.8rem;">${rupe}</h1>
+                <p style="margin-top: 10px;"><b>VALOR:</b> 2.000,00 Kz</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="btn-validar" style="background: #4a5568;" onclick="window.print()">🖨️ IMPRIMIR</button>
+                <button class="btn-validar" style="background: #0a4da2;" onclick="perguntarSair()">CONCLUÍDO</button>
+            </div>
+        </div>
+    `;
+}
+    function perguntarSair() { document.getElementById('confirmExit').style.display = 'flex'; }
+    function fecharConfirmacao() { document.getElementById('confirmExit').style.display = 'none'; }
+    function finalizarTudo() { window.location.href = "index.html"; }
+    function fecharModalSemSalvar() {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('modal-institutos').style.display = 'none';
+    }
+</script>
+</body>
+</html>

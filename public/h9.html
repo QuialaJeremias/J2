@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - UniDirecionamento</title>
+
+    <style>
+        /* Estilos base unificados */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+
+        body {
+            background: radial-gradient(circle at top, #0d2b4f 0%, #051326 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            color: #ffffff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            margin-top: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 { text-align: center; margin-bottom: 10px; font-size: 1.8rem; }
+        .subtitle { text-align: center; color: #a0aec0; margin-bottom: 30px; font-size: 0.95rem; }
+
+        /* CARD DE RESULTADO */
+        .course-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Destaque para a primeira opção */
+        .course-card.top-choice {
+            border: 2px solid #f5b932;
+            background: rgba(245, 185, 50, 0.12);
+            transform: scale(1.02);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .course-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #f5b932;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .suggestions-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #cbd5e0;
+            border-left: 3px solid #0a4da2;
+        }
+
+        .suggestions-box strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .compatibility-tag {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #ffffff;
+            background: #0a4da2;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .top-choice .compatibility-tag {
+            background: #f5b932;
+            color: #000;
+        }
+
+        .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 25px; }
+
+        .btn-next {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            background: linear-gradient(90deg, #0a4da2, #1a73e8);
+            box-shadow: 0 4px 15px rgba(10, 77, 162, 0.3);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+         .btn-back {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            text-align: center;
+            background: linear-gradient(90deg, #8e0606, #ff0000);
+            box-shadow: 0 4px 15px rgba(10, 77, 162, 0.3);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-action-card {
+            padding: 12px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-next:hover, .btn-action-card:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        footer { margin-top: 40px; text-align: center; font-size: 0.75rem; color: #718096; line-height: 1.5; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>O teu <span style="color:#f5b932;">Perfil Ideal</span></h1>
+        <p class="subtitle">Com base nas tuas respostas, estas são as áreas técnicas mais indicadas para ti em Luanda:</p>
+
+        <div id="lista-cursos"></div>
+
+        <div class="actions">
+            <a href="http://localhost:8080/institutos" class="btn-next">Explorar Institutos em Luanda →</a>
+            <a href="index.html" style="color: #ffffff;  text-align: center; text-decoration: none; font-size: 0.9rem; margin-top: 10px;"   class="btn-back" onclick="localStorage.clear()">Ir para página inicial</a>
+        </div>
+
+        <footer>
+            <strong>UniDirecionamento</strong><br>
+            Plataforma de Orientação para o Ensino Médio Técnico em Luanda
+        </footer>
+    </div>
+
+<script>
+    /*
+        h9.html
+        ------
+        Página de confirmação ou resumo final do questionário antes de encaminhar
+        o candidato ao próximo passo do processo.
+    */
+    window.onload = () => {
+        // Obtém as respostas salvas no navegador durante o teste
+        const progresso = JSON.parse(localStorage.getItem('respostas')) || [];
+
+        if (progresso.length === 0) {
+            document.getElementById('lista-cursos').innerHTML = `
+                <div class="course-card" style="text-align:center;">
+                    <!-- Mensagem de erro caso o utilizador chegue aqui sem fazer o teste -->
+                    <p>Ainda não temos dados suficientes. Por favor, recomeça o teste.</p>
+                </div>`;
+            return;
+        }
+
+        // 1. Objeto de contagem atualizado com as 9 áreas
+        const contagem = { 
+            tech: 0, saude: 0, eletro: 0, industrial: 0, 
+            gestao: 0, quimica: 0, construcao: 0,
+            agronomia: 0, pedagogia: 0 
+        };
+
+        // Percorre o array de respostas e incrementa os pontos em cada categoria correspondente
+        progresso.forEach(res => { 
+            if (contagem.hasOwnProperty(res)) contagem[res]++; 
+        });
+
+        // Calcula o total para podermos gerar percentagens
+        const totalPontosAtribuidos = Object.values(contagem).reduce((a, b) => a + b, 0);
+
+        // Transforma o objeto em array e ordena do curso com mais pontos para o com menos
+        const ordenado = Object.entries(contagem)
+            .filter(item => item[1] > 0)
+            .sort((a, b) => b[1] - a[1]); 
+
+        // 2. Base de dados de cursos e ícones
+        const infoCursos = {
+            tech: { nome: "Tecnologia & Informática", icone: "💻", especificos: "Informática de Gestão, Redes, Sistemas Digitais." },
+            saude: { nome: "Ciências da Saúde", icone: "🏥", especificos: "Enfermagem, Farmácia, Análises Clínicas." },
+            quimica: { nome: "Química", icone: "🧪", especificos: "Petroquímica, Processos Industriais, Controlo de Qualidade." },
+            eletro: { nome: "Energia & Automação", icone: "⚡", especificos: "Eletricidade Industrial, Eletrónica, Telecomunicações." },
+            industrial: { nome: "Mecânica & Produção", icone: "⚙️", especificos: "Mecatrónica, Manutenção Industrial, Frio e Climatização." },
+            construcao: { nome: "Construção Civil", icone: "🏗️", especificos: "Desenho Projetista, Edificações, Topografia, Estradas." },
+            gestao: { nome: "Gestão & Economia", icone: "📊", especificos: "Contabilidade, Administração Pública, Finanças." },
+            agronomia: { nome: "Ciências Agrárias", icone: "🌱", especificos: "Técnico de Produção Vegetal, Gestão Agrícola, Pecuária." },
+            pedagogia: { nome: "Educação & Ensino", icone: "🎓", especificos: "Magistério Primário, Educação de Infância." }
+        };
+
+        const listaDiv = document.getElementById('lista-cursos');
+        listaDiv.innerHTML = ""; 
+
+        // Gera o HTML dinâmico para cada curso recomendado
+        ordenado.forEach((item, index) => {
+            const categoria = item[0];
+            const percentagem = Math.round((item[1] / totalPontosAtribuidos) * 100); // Cálculo da afinidade
+            const curso = infoCursos[categoria];
+            const isTop = index === 0 ? 'top-choice' : ''; // Destaca o primeiro lugar
+            
+            // Definição de cores do botão interno do card
+            const btnBg = index === 0 ? '#f5b932' : '#0a4da2';
+            const btnColor = index === 0 ? '#000' : '#fff';
+
+            // Insere o card no container HTML
+            listaDiv.innerHTML += `
+                <div class="course-card ${isTop}">
+                    <div class="card-header">
+                        <div class="course-name"><span>${curso.icone}</span> ${curso.nome}</div>
+                        <div class="compatibility-tag">${percentagem}% Afinidade</div>
+                    </div>
+                    <div class="suggestions-box">
+                        <strong>Sugestões de Cursos Técnicos:</strong>
+                        ${curso.especificos}
+                    </div>
+                    <button onclick="irParaDetalhes('${categoria}')" class="btn-action-card" style="background: ${btnBg}; color: ${btnColor};">
+                        Saber mais sobre esta área →
+                    </button>
+                </div>
+            `;
+        });
+    };
+
+    // Função que guarda a área escolhida e redireciona para a página de detalhes
+    function irParaDetalhes(area) {
+        localStorage.setItem('areaSelecionada', area);
+        window.location.href = "detalhes_cursos.html";
+    }
+</script>
+</body>
+</html>

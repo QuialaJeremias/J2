@@ -1,0 +1,21 @@
+<div class="container mt-4">
+    <h2>Estudantes Registados</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+                <th>Escola de Origem</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each estudantes}}
+            <tr>
+                <td>{{this.nome}}</td>
+                <td>{{this.telefone}}</td>
+                <td>{{this.escola_origem}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

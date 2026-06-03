@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Onde Estudar - UniDirecionamento</title>
+    <style>
+        /* Reutilizando a sua identidade visual */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #051326; color: white; padding: 20px; }
+        .container { max-width: 480px; margin: 0 auto; }
+        
+        h1 { color: #f5b932; margin-bottom: 20px; text-align: center; }
+        .info-header { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+
+        .inst-card {
+            background: white; color: #333;
+            padding: 15px; border-radius: 15px;
+            margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-left: 5px solid #0a4da2;
+        }
+        
+        /* Destaque para Institutos Próximos */
+        .inst-card.priority { border-left: 5px solid #f5b932; background: #fffdf5; }
+        .badge-proximo { background: #f5b932; color: #000; font-size: 0.7rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+
+        .btn-link { background: #0a4da2; color: white; padding: 8px 15px; border-radius: 8px; text-decoration: none; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="info-header">
+            <p>Área Selecionada: <strong id="nomeArea" style="color: #f5b932;">---</strong></p>
+            <p>Sua Localização: <strong>Viana</strong></p>
+        </div>
+
+        <h3>Institutos Recomendados:</h3>
+        <div id="listaInstitutos" style="margin-top: 15px;">
+            </div>
+
+        <a href="h9.html" style="display:block; text-align:center; color: #a0aec0; margin-top: 20px; text-decoration: none;">← Voltar aos resultados</a>
+    </div>
+
+    <script>
+    /*
+        h10.html
+        -------
+        Página de apresentação de resultados/interesses. Usa dados do fluxo anterior
+        para mostrar áreas, cursos ou instruções ao candidato.
+    */
+        // Simulação de banco de dados de institutos em Luanda
+        const bancoInstitutos = [
+            { nome: "IMAV (Agrário)", municipio: "Viana", cursos: ["agronomia"] },
+            { nome: "IPIL (Ex-Industrial)", municipio: "Luanda", cursos: ["tech", "industrial", "quimica", "eletro", "construcao"] },
+            { nome: "ITEL (Telecomunicações)", municipio: "Luanda", cursos: ["tech", "eletro"] },
+            { nome: "Politécnico de Viana", municipio: "Viana", cursos: ["tech", "gestao", "construcao", "eletro"] },
+            { nome: "Magistério Mutu-ya-Kevela", municipio: "Luanda", cursos: ["pedagogia"] },
+            { nome: "Centro Politécnico de Cacuaco", municipio: "Cacuaco", cursos: ["construcao", "industrial"] }
+        ];
+
+        window.onload = () => {
+            const area = localStorage.getItem('areaSelecionada');
+            const minhaLocalizacao = "Viana"; // Isto viria do cadastro do seu Dashboard
+            
+            document.getElementById('nomeArea').innerText = area.toUpperCase();
+
+            // 1. Filtrar institutos que têm o curso da área selecionada
+            let filtrados = bancoInstitutos.filter(inst => inst.cursos.includes(area));
+
+            // 2. Ordenar: Se o município for igual ao meu, fica no topo
+            filtrados.sort((a, b) => {
+                if (a.municipio === minhaLocalizacao && b.municipio !== minhaLocalizacao) return -1;
+                if (a.municipio !== minhaLocalizacao && b.municipio === minhaLocalizacao) return 1;
+                return 0;
+            });
+
+            // 3. Renderizar na tela
+            const listaDiv = document.getElementById('listaInstitutos');
+            
+            if(filtrados.length === 0) {
+                listaDiv.innerHTML = "<p>Nenhum instituto encontrado para esta área em Luanda.</p>";
+                return;
+            }
+
+            filtrados.forEach(inst => {
+                const eProximo = inst.municipio === minhaLocalizacao;
+                listaDiv.innerHTML += `
+                    <div class="inst-card ${eProximo ? 'priority' : ''}">
+                        <div>
+                            <div style="font-weight: bold;">${inst.nome}</div>
+                            <div style="font-size: 0.8rem; color: #666;"> Município: ${inst.municipio} 
+                                ${eProximo ? '<span class="badge-proximo">MAIS PRÓXIMO</span>' : ''}
+                            </div>
+                        </div>
+                        <a href="#" class="btn-link">Ver Detalhes</a>
+                    </div>
+                `;
+            });
+        };
+    </script>
+</body>
+</html>

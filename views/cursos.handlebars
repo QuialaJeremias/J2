@@ -1,0 +1,23 @@
+<div class="container mt-4">
+    <h2>Cursos Disponíveis</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Curso</th>
+                <th>Duração</th>
+                <th>Vagas</th>
+                <th>ID Instituto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each cursos}}
+            <tr>
+                <td>{{this.nome_curso}}</td>
+                <td>{{this.duracao}}</td>
+                <td>{{this.vagas}}</td>
+                <td>{{this.instituto_id}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

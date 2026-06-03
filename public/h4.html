@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pergunta 2 - UniDirecionamento</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* FUNDO DINÂMICO */
+        body {
+            background: linear-gradient(135deg, #0a4da2, #3a7bd5, #f5b932);
+            background-size: 300% 300%;
+            animation: gradientMove 10s ease infinite;
+            padding: 20px;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .link-clean {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .link-clean:hover { color: #0a4da2; }
+
+        /* PROGRESSO */
+        .progress-container { margin-bottom: 30px; }
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: #666;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e6ed;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 35%;
+            height: 100%;
+            background: linear-gradient(90deg, #0a4da2, #f5b932);
+        }
+
+        /* CONTEÚDO */
+        .section-tag {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            line-height: 1.3;
+            margin-bottom: 30px;
+            color: #051326;
+        }
+
+       .options-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Cria as duas colunas */
+    gap: 15px; /* Espaço entre os cartões */
+    margin-bottom: 30px;
+}
+
+/* Ajustes nos cartões para ficarem bonitos em grelha */
+.option-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    border-radius: 15px; /* Bordas suaves */
+    display: flex;
+    flex-direction: column; /* Ícone em cima do texto */
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    font-size: 0.85rem; /* Ajuste para caber melhor */
+    min-height: 120px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.option-card:hover {
+    border-color: #0a4da2;
+    background-color: #f0f7ff;
+    transform: translateY(-3px); /* Pequeno efeito de levitação */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+}
+
+.option-card.selected {
+    border: 2px solid #0a4da2;
+    background-color: #f0f7ff;
+    color: #0a4da2;
+}
+
+.icon {
+    font-size: 1.8rem; /* Ícone maior para destaque */
+    margin-bottom: 8px;
+}
+
+/* Ajuste para ecrãs pequenos (telemóveis) */
+@media (max-width: 400px) {
+    .options-list {
+        grid-template-columns: 1fr; /* Volta a 1 coluna se for muito estreito */
+    }
+}
+
+        /* BOTÃO */
+        .btn-next {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background-color: #8da9c4;
+            color: white;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: 0.3s;
+        }
+
+        .btn-next.active {
+            background-color: #0a4da2;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(10, 77, 162, 0.3);
+        }
+
+        .bg-icons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 28px;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+        .btn-voltar {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            z-index: 10000;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px;
+            background: #06126e00;
+            border: 2px solid #ffffff;
+            transition: 0.3s;
+        }
+
+        .btn-voltar:hover {
+            background: #040e69; 
+            color: #ffffff; 
+            transform: scale(1.05); 
+            border: 2px solid #ffffff00;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header"> 
+         <a href="h3.html" class="btn-voltar"> ← Voltar à pergunta anterior</a>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-text">
+            <span>Pergunta 2 de 6</span>
+            <span>35%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="section-tag">🛠️ Habilidades Técnicas</div>
+    <h1>O que mais gostaria de dominar no seu dia a dia profissional?</h1>
+
+   <div class="options-list" id="optionsList">
+    <div class="option-card" data-value="tech_eletro">
+        <span class="icon">💻</span> Programar sistemas e redes digitais
+    </div>
+    
+    <div class="option-card" data-value="saude_quimica">
+        <span class="icon">🔬</span> Análises químicas e biológicas
+    </div>
+
+    <div class="option-card" data-value="industrial_construcao">
+        <span class="icon">⚙️</span> Manutenção de máquinas e estruturas
+    </div>
+
+    <div class="option-card" data-value="eletro_industrial">
+        <span class="icon">⚡</span> Instalar sistemas de energia e automação
+    </div>
+
+    <div class="option-card" data-value="agronomia_ambiente">
+        <span class="icon">🌱</span> Cultivo agrícola e cuidado animal
+    </div>
+
+    <div class="option-card" data-value="pedagogia_ensino">
+        <span class="icon">📚</span> Métodos de ensino e educação infantil
+    </div>
+</div>
+
+    <div class="actions">
+        <button type="button" class="btn-next" id="nextBtn">
+            Próximo passo →
+        </button>
+    </div>
+</div>
+
+<div class="bg-icons">🎓 📚 💡 🧠 💻 🌱 ⚙️</div>
+
+<script>
+    /*
+        h4.html
+        ------
+        Pergunta 2 do fluxo de orientação. O utilizador seleciona habilidades técnicas
+        e o resultado é guardado no localStorage para determinar cursos recomendados.
+    */
+    const cards = document.querySelectorAll('.option-card');
+    const nextBtn = document.getElementById('nextBtn');
+    let escolhaTemporaria = null;
+
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            cards.forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            escolhaTemporaria = card.dataset.value;
+
+            nextBtn.classList.add('active');
+            nextBtn.style.opacity = "1";
+            nextBtn.style.cursor = "pointer";
+        });
+    });
+
+    nextBtn.addEventListener('click', () => {
+    if(escolhaTemporaria) {
+        let respostas = JSON.parse(localStorage.getItem("respostas")) || [];
+
+        if(escolhaTemporaria === "tech_eletro") {
+            respostas.push("tech", "eletro");
+        } 
+        else if(escolhaTemporaria === "saude_quimica") {
+            respostas.push("saude", "quimica");
+        }
+        else if(escolhaTemporaria === "industrial_construcao") {
+            respostas.push("industrial", "construcao");
+        }
+        else if(escolhaTemporaria === "eletro_industrial") {
+            respostas.push("eletro", "industrial");
+        }
+        // Lógica para as novas áreas
+        else if(escolhaTemporaria === "agronomia_ambiente") {
+            respostas.push("agronomia");
+        }
+        else if(escolhaTemporaria === "pedagogia_ensino") {
+            respostas.push("pedagogia");
+        }
+
+        localStorage.setItem("respostas", JSON.stringify(respostas));
+        window.location.href = "h5.html"; // Próxima tela
+    } else {
+        alert("Por favor, selecione uma habilidade!");
+    }
+});
+</script>
+
+</body>
+</html>

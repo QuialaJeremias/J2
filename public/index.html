@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J_Direcionamento - Luanda</title>
+    <link rel="icon" type="image/png" href="CAMINHO_DA_TUA_LOGO.png">
+    <style>
+        /* Estilos base */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+
+        body {
+            background: linear-gradient(180deg, #0a2342 0%, #051326 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container { max-width: 400px; width: 100%; }
+
+        .icon-box {
+            background-color: #f5b932;
+            width: 90px;
+            height: 90px;
+            border-radius: 20px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 45px;
+        }
+
+        h1 { font-size: 2rem; font-weight: bold; line-height: 1.2; }
+        .highlight { color: #f5b932; display: block; margin-bottom: 20px; }
+        p { color: #d1d1d1; margin-bottom: 40px; font-size: 1rem; }
+
+        /* Estilização dos Links como Botões */
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 55px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-decoration: none; /* Remove o sublinhado do link */
+            margin-bottom: 15px;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active { opacity: 0.8; }
+
+        .btn-yellow {
+            background-color: #f5b932;
+            color: #000;
+        }
+
+        .btn-white {
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        footer {
+            font-size: 0.8rem;
+            color: #667c99;
+            margin-top: 40px;
+        }
+
+        #defin{
+            padding: 10px 20px;
+   
+    border-radius: 12px;
+    cursor: pointer;
+     background: #eff1f300 0%;
+    color: aliceblue;
+    margin: 20px 0px 10px 1050px;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+        }
+
+    </style>
+</head>
+<body>
+<button id="defin" onclick=" window.location.href='admin.html'">⚙️</button>
+    <div class="container">
+        <div class="icon-box">🎓</div>
+
+        <h1>Bem-vindo ao <span class="highlight">J_Direcionamento</span></h1>
+
+        <p>A sua plataforma de orientação estudantil para o acesso á institutos médios técnicos públicos de Luanda.</p>
+
+        <!-- Botão 1: Iniciar Processo -->
+        <a href="\h2.html" class="btn btn-yellow">
+            Iniciar Processo &nbsp; →
+        </a>
+
+        <a href="\mais_informações.html" class="btn btn-white">
+            Mais informações &nbsp; →
+        </a>
+
+        <!-- Botão 2: Espaço em Branco (ou outra função) -->
+        <a href="http://localhost:8080/institutos" class="btn btn-white">
+            Mais Institutos →
+        </a>
+
+        <footer>
+            Direcionamento estudantil — Luanda, Angola
+        </footer>
+    </div>
+    <script>
+        /*
+            index.html
+            ----------
+            Página inicial pública. Limpa o estado temporário de respostas do fluxo
+            antes do utilizador iniciar a nova jornada de orientação.
+        */
+        localStorage.removeItem('respostas');
+    </script>
+</body>
+</html>

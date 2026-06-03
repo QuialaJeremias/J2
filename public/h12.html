@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniDirecionamento - Luanda</title>
+    <style>
+        :root {
+            --primary-blue: #0a2342;
+            --secondary-blue: #0a4da2;
+            --accent-yellow: #f5b932;
+            --bg-light: #f8fafd;
+            --text-dark: #051326;
+            --gray: #888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); overflow-x: hidden; }
+
+        .screen { display: none; min-height: 100vh; padding: 20px; animation: fadeIn 0.4s ease; }
+        .active { display: flex; flex-direction: column; align-items: center; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HEADER E PROGRESSO */
+        .progress-container { width: 100%; max-width: 400px; margin-bottom: 30px; margin-top: 20px;}
+        .progress-bar { height: 8px; background: #e0e6ed; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-yellow); width: 0%; transition: 0.5s ease; }
+
+        /* CARDS E BOTÕES */
+        .option-card { background: white; border: 1px solid #e0e0e0; padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; margin-bottom: 12px; cursor: pointer; transition: 0.3s; }
+        .option-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .option-card.selected { border: 2px solid var(--secondary-blue); background: #f0f7ff; }
+
+        .btn-next { background: #ccc; color: white; border: none; width: 100%; max-width: 400px; padding: 18px; border-radius: 12px; font-weight: bold; margin-top: 20px; cursor: not-allowed; transition: 0.3s; }
+        .btn-next.enabled { background: var(--primary-blue); cursor: pointer; }
+
+        /* RESULTADOS */
+        .result-card { background: white; border: 1px solid #e0e0e0; padding: 20px; border-radius: 16px; width: 100%; max-width: 400px; display: flex; align-items: center; margin-bottom: 15px; }
+        .top { border: 2px solid var(--accent-yellow); box-shadow: 0 10px 20px rgba(245, 185, 50, 0.1); }
+        .rank { width: 35px; height: 35px; background: #eee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold; }
+        .top .rank { background: var(--accent-yellow); }
+        .compat { margin-left: auto; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; background: #eee; font-weight: bold; }
+        .top .compat { background: var(--secondary-blue); color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-welcome" class="screen active" style="background: var(--primary-blue); color: white; justify-content: center;">
+        <div style="background: var(--accent-yellow); width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px;">🎓</div>
+        <h1>UniDirecionamento</h1>
+        <p style="margin: 10px 0 30px; opacity: 0.8;">Descobre o teu curso ideal em Luanda.</p>
+        <button class="btn-next enabled" style="background: var(--accent-yellow); color: black;" onclick="goTo('screen-q1')">Começar Teste</button>
+    </div>
+
+    <div id="screen-q1" class="screen">
+        <div class="progress-container">
+            <div style="display:flex; justify-content: space-between"><span>Pergunta 1 de 4</span><span>25%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 25%"></div></div>
+        </div>
+        <h3>Como preferes resolver problemas?</h3><br>
+        <div class="option-card" onclick="selectOpt(this, 'tech', 'screen-q1')">Usando lógica e computadores</div>
+        <div class="option-card" onclick="selectOpt(this, 'saude', 'screen-q1')">Cuidando do bem-estar das pessoas</div>
+        <div class="option-card" onclick="selectOpt(this, 'eletro', 'screen-q1')">Consertando aparelhos e circuitos</div>
+        <button class="btn-next" onclick="goTo('screen-q2')" id="btn-q1">Próxima</button>
+    </div>
+
+    <div id="screen-q2" class="screen">
+        <div class="progress-container">
+            <div style="display:flex; justify-content: space-between"><span>Pergunta 2 de 4</span><span>50%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 50%"></div></div>
+        </div>
+        <h3>Qual destes ambientes te agrada mais?</h3><br>
+        <div class="option-card" onclick="selectOpt(this, 'tech', 'screen-q2')">Um escritório moderno com tecnologia</div>
+        <div class="option-card" onclick="selectOpt(this, 'saude', 'screen-q2')">Um hospital ou laboratório clínico</div>
+        <div class="option-card" onclick="selectOpt(this, 'eletro', 'screen-q2')">Uma oficina ou central de energia</div>
+        <button class="btn-next" onclick="goTo('screen-q3')" id="btn-q2">Próxima</button>
+    </div>
+
+    <div id="screen-q3" class="screen">
+        <div class="progress-container">
+            <div style="display:flex; justify-content: space-between"><span>Pergunta 3 de 4</span><span>75%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 75%"></div></div>
+        </div>
+        <h3>O que gostarias de criar no futuro?</h3><br>
+        <div class="option-card" onclick="selectOpt(this, 'tech', 'screen-q3')">Uma aplicação ou site inovador</div>
+        <div class="option-card" onclick="selectOpt(this, 'saude', 'screen-q3')">Novos métodos de tratamento médico</div>
+        <div class="option-card" onclick="selectOpt(this, 'eletro', 'screen-q3')">Sistemas elétricos inteligentes</div>
+        <button class="btn-next" onclick="goTo('screen-q4')" id="btn-q3">Próxima</button>
+    </div>
+
+    <div id="screen-q4" class="screen">
+        <div class="progress-container">
+            <div style="display:flex; justify-content: space-between"><span>Pergunta 4 de 4</span><span>100%</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+        </div>
+        <h3>Qual a tua disciplina favorita?</h3><br>
+        <div class="option-card" onclick="selectOpt(this, 'tech', 'screen-q4')">Informática e Matemática</div>
+        <div class="option-card" onclick="selectOpt(this, 'saude', 'screen-q4')">Biologia e Química</div>
+        <div class="option-card" onclick="selectOpt(this, 'eletro', 'screen-q4')">Física e Eletricidade</div>
+        <button class="btn-next" onclick="showResults()" id="btn-q4">Ver Resultado</button>
+    </div>
+
+    <div id="screen-result" class="screen">
+        <h1>O Teu Perfil</h1>
+        <p style="color: var(--gray); margin-bottom: 30px;">Cursos mais recomendados:</p>
+        <div id="result-list" style="width: 100%;"></div>
+        
+        <div style="display: flex; flex-direction: column; width: 100%; max-width: 400px; gap: 10px; margin-top: 20px;">
+            <button class="btn-next enabled" style="background: var(--accent-yellow); color: black;">Encontrar Institutos em Luanda</button>
+            <button class="btn-next enabled" style="background: none; color: var(--gray); border: 1px solid #ccc;" onclick="location.reload()">Refazer Teste</button>
+        </div>
+    </div>
+
+    <script>
+    /*
+        h12.html
+        -------
+        Última etapa do processo de fluxo de orientação. Permite ao candidato confirmar
+        escolhas e avançar para o registro ou consulta de cursos.
+    */
+        let scores = { tech: 0, saude: 0, eletro: 0 };
+
+        function goTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        function selectOpt(element, category, screenId) {
+            document.querySelectorAll(`#${screenId} .option-card`).forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            scores[category]++;
+            const btnId = screenId.replace('screen-', 'btn-');
+            document.getElementById(btnId).classList.add('enabled');
+        }
+
+        function showResults() {
+            goTo('screen-result');
+            const list = document.getElementById('result-list');
+            const total = 4; // Total de perguntas
+
+            const courses = [
+                { name: 'Técnico de Informática', cat: 'tech' },
+                { name: 'Análises Clínicas / Enfermagem', cat: 'saude' },
+                { name: 'Eletricidade Industrial', cat: 'eletro' }
+            ].sort((a, b) => scores[b.cat] - scores[a.cat]);
+
+            list.innerHTML = courses.map((c, i) => {
+                const percent = Math.round((scores[c.cat] / total) * 100);
+                return `
+                    <div class="result-card ${i === 0 ? 'top' : ''}">
+                        <div class="rank">${i + 1}</div>
+                        <div style="font-weight: bold">${c.name}</div>
+                        <div class="compat">${percent}%</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
+
+```
+
