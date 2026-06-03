@@ -13,7 +13,7 @@ app.use(fileupload());
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: false })); 
 
-// Arquivos Estáticos
+// Arquivos Estáticos - O Express entrega tudo o que estiver dentro destas pastas de forma automática
 app.use('/bootstrap', express.static('./node_modules/bootstrap/dist')); 
 app.use('/css', express.static('./css')); 
 app.use('/img', express.static('./img')); 
@@ -61,29 +61,45 @@ const firestore = admin.firestore();
 console.log('✅ Conectado ao Firebase Cloud com sucesso!');
 
 
-// --- ROTAS DE NAVEGAÇÃO (GET) ---
+// --- ROTAS DE NAVEGAÇÃO PRINCIPAIS ---
 
 // Rota Raiz - Serve a página inicial index.html da pasta public
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Rota para a página de Login do Estudante
+// Rota de Login do Estudante - Mapeado para o teu ficheiro real
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'inicio_de_processo2.html'));
 });
 
-// Rota para a página do Teste Vocacional
+// Rota do Teste Vocacional - Renderiza o motor Handlebars dinâmico
 app.get('/teste', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'teste.html'));
+    res.render('questionario');
 });
 
-// Rota para a página de Administração (Acesso ao formulário de login do admin)
+// Rota do Painel Admin - Abre a tela de autenticação
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-// ROTA DE SINCRONIZAÇÃO HÍBRIDA
+// ROTA DINÂMICA INTELIGENTE: Remove a necessidade de criar rotas para h2, h3, mais_informacoes, etc.
+// Se o utilizador digitar /mais_informacoes ou /h2, o sistema procura e serve o .html correto automaticamente.
+app.get('/:pagina', (req, res, next) => {
+    const pagina = req.params.pagina;
+    const rotasReservadas = ['institutos', 'estudantes', 'lista-estudantes', 'lista-cursos', 'admin', 'login', 'teste'];
+    
+    if (rotasReservadas.includes(pagina) || pagina.includes('.html')) {
+        return next();
+    }
+
+    res.sendFile(path.join(__dirname, 'public', `${pagina}.html`), (err) => {
+        if (err) next();
+    });
+});
+
+
+// --- ROTA DE SINCRONIZAÇÃO HÍBRIDA ---
 app.get('/institutos', async (req, res) => {
     try {
         const snapshot = await firestore.collection('Institutos').get();
@@ -125,10 +141,10 @@ app.get('/institutos', async (req, res) => {
     }
 });
 
+
 // --- VALIDAÇÃO DO ADMIN DIRETA NO BANCO ---
 app.get('/admin/autenticar', (req, res) => {
     const senhaDigitada = req.query.senha;
-
     const sql = "SELECT * FROM usuario WHERE tipo = 'admin' AND senha = ? LIMIT 1";
     
     conexao.query(sql, [senhaDigitada], (erro, resultados) => {
@@ -139,8 +155,7 @@ app.get('/admin/autenticar', (req, res) => {
 
         if (resultados.length > 0) {
             console.log(`💼 Acesso Autorizado para o Admin!`);
-            // Corrigido: Aponta consistentemente para o arquivo dentro da pasta public
-            return res.sendFile(path.join(__dirname, 'public', 'admin.html')); 
+            return res.sendFile(path.join(__dirname, 'public', 'admin2.html')); 
         } else {
             return res.send(`
                 <script>
@@ -155,7 +170,6 @@ app.get('/admin/autenticar', (req, res) => {
 
 // --- OPERAÇÕES DE BANCO (POST) ---
 
-// Cadastrar novo instituto (Painel Admin)
 app.post('/cadastrar', function(req, res) {
     let { nome, mun, categoria, Descrico } = req.body; 
     let img = req.files.img.name; 
@@ -173,10 +187,8 @@ app.post('/cadastrar', function(req, res) {
     });
 });
 
-// Cadastrar um curso associado a um Instituto (Painel Admin)
 app.post('/cadastrar-curso', (req, res) => {
     const { nome_curso, duracao, vagas, instituto_id } = req.body;
-
     const sql = "INSERT INTO curso (nome_curso, duracao, vagas, instituto_id) VALUES (?, ?, ?, ?)";
     
     conexao.query(sql, [nome_curso, duracao || '4 anos', vagas || 0, instituto_id], (erro) => {
@@ -189,10 +201,8 @@ app.post('/cadastrar-curso', (req, res) => {
     });
 });
 
-// Processamento do Resultado do Teste Vocacional
 app.post('/resultado', (req, res) => {
     let nome = req.body.nome || "Estudante Anónimo"; 
-    
     let tech = parseInt(req.body.tecnologia) || 0;
     let saude = parseInt(req.body.saude) || 0;
     let industrial = parseInt(req.body.industrial) || 0; 
@@ -227,10 +237,8 @@ app.post('/resultado', (req, res) => {
     });
 });
 
-// Rota de Login para o estudante
 app.post('/usuario/login', (req, res) => {
     const { email, senha } = req.body;
-
     const sql = "SELECT * FROM usuario WHERE email = ? AND senha = ? AND tipo = 'estudante' LIMIT 1";
     
     conexao.query(sql, [email, senha], (erro, resultados) => {
@@ -239,8 +247,6 @@ app.post('/usuario/login', (req, res) => {
         if (resultados.length > 0) {
             req.session.usuarioLogadoId = resultados[0].id;
             req.session.usuarioLogadoNome = resultados[0].email; 
-
-            console.log(`🔑 Estudante [${email}] fez login com o ID: ${resultados[0].id}`);
             res.redirect('/'); 
         } else {
             res.send("<script>alert('Dados inválidos'); window.location.href='/login';</script>");
@@ -248,10 +254,8 @@ app.post('/usuario/login', (req, res) => {
     });
 });
 
-// Identificar se é Estudante Registado ou Visitante Campilado
 app.post('/identificar-estudante', (req, res) => {
     const { nome, telefone, escola_origem } = req.body; 
-    
     let usuarioId = req.session.usuarioLogadoId || null; 
 
     const sql = "INSERT INTO estudantes (nome, telefone, escola_origem, usuario_id) VALUES (?, ?, ?, ?)";
@@ -262,40 +266,32 @@ app.post('/identificar-estudante', (req, res) => {
             console.error("Erro ao registar estudante:", erro);
             return res.status(500).send("Erro no servidor");
         }
-
         const idEstudanteCriado = resultado.insertId;
-        console.log(`👤 Perfil Compilado! ID Estudante: ${idEstudanteCriado} | Vinculado ao Usuário ID: ${usuarioId}`);
-        
         res.redirect(`/teste?estudante=${idEstudanteCriado}`);
     });
 });
 
-// Rota para listar todos os estudantes registados
+// --- LISTAGENS (GET RENDER) ---
 app.get('/estudantes', (req, res) => {
     conexao.query('SELECT * FROM estudantes', (erro, resultados) => {
-        if (erro) {
-            console.error("Erro ao buscar estudantes:", erro);
-            return res.status(500).send("Erro ao carregar dados.");
-        }
+        if (erro) return res.status(500).send("Erro ao carregar dados.");
         res.render('estudantes', { estudantes: resultados });
     });
 });
 
-// Rota suplementar para Estudantes
 app.get('/lista-estudantes', (req, res) => {
     conexao.query('SELECT * FROM estudantes', (err, result) => {
         res.render('estudantes', { estudantes: result });
     });
 });
 
-// Rota para Cursos
 app.get('/lista-cursos', (req, res) => {
     conexao.query('SELECT * FROM curso', (err, result) => {
         res.render('cursos', { cursos: result });
     });
 });
 
-// --- INICIALIZAÇÃO DO SERVIDOR ---
+// --- INICIALIZAÇÃO ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Servidor a rodar com sucesso na porta ${PORT}`);
