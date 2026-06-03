@@ -53,8 +53,12 @@ const conexao = mysql.createConnection({
 });
 
 conexao.connect(function(erro) {
-    if (erro) throw erro;
-    console.log('✅ Conectado ao banco j_direcionamentos (MySQL)');
+    if (erro) {
+        console.error('❌ Erro ao conectar ao MySQL (Ambiente de Produção/Vercel):', erro.message);
+        console.log('ℹ️ O sistema continuará a funcionar utilizando os dados do Firebase Firestore.');
+    } else {
+        console.log('✅ Conectado ao banco j_direcionamentos (MySQL)');
+    }
 });
 
 // Inicializar o Firebase
@@ -70,6 +74,11 @@ console.log('✅ Conectado ao Firebase Cloud com sucesso!');
 
 
 // --- ROTAS DE NAVEGAÇÃO ---
+
+// Rota Raiz - Serve a página inicial index.html da pasta public
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // ROTA DE SINCRONIZAÇÃO HÍBRIDA
 app.get('/institutos', async (req, res) => {
@@ -287,7 +296,8 @@ app.get('/lista-cursos', (req, res) => {
 });
 
 // --- INICIALIZAÇÃO DO SERVIDOR ---
-const PORT = 8080;
+// --- INICIALIZAÇÃO DO SERVIDOR ---
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Servidor a rodar em http://localhost:${PORT}`);
+    console.log(`Servidor a rodar com sucesso na porta ${PORT}`);
 });
