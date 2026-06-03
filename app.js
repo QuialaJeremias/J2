@@ -35,18 +35,6 @@ app.set('views', './views');
 // MySQL Local
 const conexao = mysql.createConnection({
     host: 'localhost',
-
-/*
-    app.js
-    ------
-    Servidor Node/Express responsável por:
-      - servir conteúdo estático em /public
-      - conectar ao MySQL local e ao Firestore
-      - expor rotas de sincronização e autenticação
-      - processar formulários de cadastro e resultados
-    A autenticação administradora ainda é feita por contraste via coleção
-    `Administradores` no Firestore e, em algumas rotas, via tabela MySQL.
-*/
     user: 'root',
     password: '',
     database: 'j_direcionamentos'
@@ -73,11 +61,26 @@ const firestore = admin.firestore();
 console.log('✅ Conectado ao Firebase Cloud com sucesso!');
 
 
-// --- ROTAS DE NAVEGAÇÃO ---
+// --- ROTAS DE NAVEGAÇÃO (GET) ---
 
 // Rota Raiz - Serve a página inicial index.html da pasta public
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Rota para a página de Login do Estudante
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Rota para a página do Teste Vocacional
+app.get('/teste', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'teste.html'));
+});
+
+// Rota para a página de Administração (Acesso ao formulário de login do admin)
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // ROTA DE SINCRONIZAÇÃO HÍBRIDA
@@ -109,8 +112,6 @@ app.get('/institutos', async (req, res) => {
         res.render('institutos', { 
             institutos: listaInstitutos 
         });
-// Rota principal de teste / dashboard de institutos
-// Esta rota busca os institutos no Firebase e os espelha no MySQL local.
 
     } catch (error) {
         console.error("Erro no processo de sincronização:", error);
@@ -123,7 +124,6 @@ app.get('/institutos', async (req, res) => {
         });
     }
 });
-
 
 // --- VALIDAÇÃO DO ADMIN DIRETA NO BANCO ---
 app.get('/admin/autenticar', (req, res) => {
@@ -139,12 +139,13 @@ app.get('/admin/autenticar', (req, res) => {
 
         if (resultados.length > 0) {
             console.log(`💼 Acesso Autorizado para o Admin!`);
-            return res.sendFile(path.join(__dirname, 'admin2.html')); 
+            // Corrigido: Aponta consistentemente para o arquivo dentro da pasta public
+            return res.sendFile(path.join(__dirname, 'public', 'admin.html')); 
         } else {
             return res.send(`
                 <script>
                     alert("Password de Administrador inválida!");
-                    window.location.href = "http://localhost:8080/";
+                    window.location.href = "/admin";
                 </script>
             `);
         }
@@ -247,9 +248,9 @@ app.post('/usuario/login', (req, res) => {
     });
 });
 
-// Identificar se é Estudante Registado ou Visitante Compilado (Apenas UMA versão limpa)
+// Identificar se é Estudante Registado ou Visitante Campilado
 app.post('/identificar-estudante', (req, res) => {
-    const { nome, telefone, escola_origem } = req.body; // Ajustado para corresponder ao banco
+    const { nome, telefone, escola_origem } = req.body; 
     
     let usuarioId = req.session.usuarioLogadoId || null; 
 
@@ -276,12 +277,11 @@ app.get('/estudantes', (req, res) => {
             console.error("Erro ao buscar estudantes:", erro);
             return res.status(500).send("Erro ao carregar dados.");
         }
-        // Renderiza uma view chamada 'estudantes' que terás de criar
         res.render('estudantes', { estudantes: resultados });
     });
 });
 
-// Rota para Estudanetes
+// Rota suplementar para Estudantes
 app.get('/lista-estudantes', (req, res) => {
     conexao.query('SELECT * FROM estudantes', (err, result) => {
         res.render('estudantes', { estudantes: result });
@@ -295,7 +295,6 @@ app.get('/lista-cursos', (req, res) => {
     });
 });
 
-// --- INICIALIZAÇÃO DO SERVIDOR ---
 // --- INICIALIZAÇÃO DO SERVIDOR ---
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
