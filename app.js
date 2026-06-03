@@ -105,7 +105,7 @@ app.get('/institutos', async (req, res) => {
 
     } catch (error) {
         console.error("Erro no processo de sincronização:", error);
-        
+
         conexao.query('SELECT * FROM institutos', (erroMysql, resultado) => {
             if (erroMysql) {
                 return res.status(500).json({ error: "Falha ao carregar os dados locais." });
